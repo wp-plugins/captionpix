@@ -1,0 +1,8 @@
+form#captionpix_signup { width:250px; text-align:center; }
+form#captionpix_signup label { font-weight: bold}
+form#captionpix_signup label#lsubject { display: none;}
+form#captionpix_signup input[type="text"] { width:150px; background-color:#FDF6DC;}
+form#captionpix_signup input[type="submit"] { width:250px; height:72px; border:0;
+  background-repeat: no-repeat; background-color:transparent;
+  background-image: url(http://images.captionpix.com/layout/get-free-license-key-button.png); cursor:pointer;
+}
