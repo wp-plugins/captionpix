@@ -211,7 +211,7 @@ HELP_PANEL;
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
         <h2>CaptionPix Default Settings</h2>
-		<p>For help on gettting the best from CaptionPix visit the <a href="http://www.captionPpix.com/">CaptionPix Plugin Home Page</a></p>
+		<p>For help on gettting the best from CaptionPix visit the <a href="http://www.captionpix.com/">CaptionPix Plugin Home Page</a></p>
         <div id="side-info-column" class="inner-sidebar">
 		<?php do_meta_boxes(self::get_screen_id(), 'side', null); ?>
         </div>

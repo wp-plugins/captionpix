@@ -6,3 +6,6 @@ form#captionpix_signup input[type="submit"] { width:250px; height:72px; border:0
   background-repeat: no-repeat; background-color:transparent;
   background-image: url(http://images.captionpix.com/layout/get-free-license-key-button.png); cursor:pointer;
 }
+h4 { color: #F12506; font-size: 1.4em; }p { font-size: 1.2em; }
+p.cpix-notice { font-weight: bold; font-style: italic; }
+span.cpix-highlight { color: #72A512; }

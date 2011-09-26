@@ -118,23 +118,22 @@ class captionpix_licence {
         $readonly = $is_valid ? '' : 'readonly="readonly" class="readonly"';
 		print <<< LICENCE_PANEL
 
-<h4>CaptionPix Is Free</h4>
-CaptionPix is a FREE plugin and comes with a standard set of theme designs for image frames. You do not need a license key to use the CaptionPix plugin. 
-
-<h4>But Getting A Free License Key Has Its Benefits</h4>
-If you sign up as a free licensed user we will make more themes available to you as a thank you. By signing up you help to support the work we do by allowing us to contact you about our other developments.
-
-As a free licensed user new themes will automatically appear in your CaptionPix plugin, and you won't have to update the plugin to get them.  We'll just drop you an email to let you know they are there. The license key works as long as you are subscribed to the email list.
-
 <h4>How To Get A FREE CaptionPix License</h4>
 
-<p>To get a license key, fill out the form on the right, confirm your email address and we will email you a FREE licence key. You can then paste it in below</p>
-<p>{$notice}</p>
+<p>To get a license key: </p>
+<ol>
+<li>Fill out the form on the right</li>
+<li>The first email we'll send will contain a link which you need to click, to confirm</li>
+<li>Once you've done that we'll send a second email containing your license key</li>
+<li>Copy and paste the license key into the box below and click on the save changes button</li>
+<li>You're done!</li>
+<li>Get back to us with any problems by visiting <a href=" http://www.captionpix.com/getting-help/">our support page</a></li>
+</ol>
 <label for="licence">License Key: </label><input type="password" name="licence" id="licence"  style="width:320px" value="{$licence}" />&nbsp;{$key_status_indicator}
+<p class="cpix-notice">{$notice}</p>
 
 LICENCE_PANEL;
 	}
-
 
 	static function request_panel($post, $metabox) {
 		$home = CAPTIONPIX_HOME;
@@ -157,9 +156,13 @@ REQUEST_PANEL;
 	static function controller() {
  		global $screen_layout_columns;		
  		if (isset($_POST['options_update'])) echo self::save();
+    	$themes_url = captionpix_themes::get_url(); 
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
-        <h2>Obtaining a CaptionPix Licence</h2>
+        <h2>Obtaining a <span class="cpix-highlight">FREE</span> CaptionPix Licence Is A Good Idea!</h2>
+		<p>CaptionPix is a FREE plugin and comes with a <span class="cpix-highlight">standard set of 6 theme designs</span> for image borders.</p>
+		<p>If you sign up as a free licensed user we'll give you many <a href="<?php echo $themes_url; ?>">MANY MORE CaptionPix themes</a> as a thank you. By signing up you help to support the work we do by allowing us to contact you about our other plugins and tutorials.</p>
+
         <div id="side-info-column" class="inner-sidebar">
 		<?php do_meta_boxes(self::get_screen_id(), 'side', null); ?>
         </div>
