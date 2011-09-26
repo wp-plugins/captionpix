@@ -37,7 +37,7 @@ captiontext       - the caption text to be displayed
 */
 
 add_filter('widget_text', 'do_shortcode', 11);
-//add_filter('the_content', array('captionpix','autocaption'), 10);
+//add_filter('the_content', array('captionpix','autocaption'), 10); //autocaptioning coming in a later release
 add_shortcode('captionpix', array('captionpix','display'));
 
 class captionpix {
@@ -190,7 +190,7 @@ class captionpix {
 		$badchars = array('&',  '*',   '\'',   '?', '!', '"', '`', '_');
 		$title =  str_replace($badchars, "", $title);
 		$alt = empty($alt) ? $title : htmlspecialchars($alt, ENT_QUOTES) ;
-		$width = 'width:'.$width.'px';
+		$width = 'max-width:100%; width:'.$width.'px';
         $padding = ';padding:'.$padding;
         $margin = ';margin:'.$margin;		
         if (!empty($linkrel)) $linkrel = ' rel="'.$linkrel.'"'; 
