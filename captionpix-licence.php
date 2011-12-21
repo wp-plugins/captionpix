@@ -58,7 +58,7 @@ class captionpix_licence {
 	}
 
 	static function load_style() {
-    	echo ('<link rel="stylesheet" id="'.CAPTIONPIX_ADMIN.'" href="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-licence.css?ver='.CAPTIONPIX_PLUGIN_URL.'" type="text/css" media="all" />');
+    	echo ('<link rel="stylesheet" id="'.CAPTIONPIX_LICENCE.'" href="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-licence.css?ver='.CAPTIONPIX_PLUGIN_URL.'" type="text/css" media="all" />');
  	}
 
 	static function load_script() {
@@ -74,7 +74,7 @@ class captionpix_licence {
 		global $current_screen;
 		add_contextual_help( $current_screen,
 			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
-			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" target="_blank">Getting Started with CaptionPix</a></p>');	
+			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
 	}
 
 
@@ -93,14 +93,13 @@ class captionpix_licence {
 	<?php
     }
 
-
 	static function save() {
 		check_admin_referer(CAPTIONPIX_LICENCE);
-       	if (CaptionPixUpdater::save_licence(trim(stripslashes($_POST['licence'])))) {
+       	if (CaptionPixUpdater::save_licence(trim(stripslashes($_POST['licence'])))) 
        		$message = __("CaptionPix License saved.",CAPTIONPIX_ADMIN);
- 			CaptionPixUpdater::get_updates(false); //update cache with new entitlements as a licensed user
- 		} else
+ 		else
        		$message = __("CaptionPix License has not changed.",CAPTIONPIX_ADMIN);
+ 		CaptionPixUpdater::get_updates(false); //update cache with new entitlements as a licensed user
   		return '<div id="message" class="updated fade"><p>' . $message. '</p></div>';
 	}
 
@@ -112,7 +111,8 @@ class captionpix_licence {
 		$licence = CaptionPixUpdater::get_licence(false);
 		if (! empty($licence)) {
    			$is_valid = CaptionPixUpdater::check_validity();
-   			$key_status_indicator = "<img src='" . CAPTIONPIX_PLUGIN_URL ."/images/".($is_valid ? "tick" : "cross").".png'/>";
+   			$flag = $is_valid ? 'tick' : 'cross';
+   			$key_status_indicator = '<img src="' . CAPTIONPIX_PLUGIN_URL .'/images/'.$flag.'.png" alt="a '.$flag.'" />';
  			$notice = CaptionPixUpdater::get_notice();
  		}
         $readonly = $is_valid ? '' : 'readonly="readonly" class="readonly"';
@@ -140,11 +140,10 @@ LICENCE_PANEL;
 		$domain = parse_url(site_url(),PHP_URL_HOST);
 		print <<< REQUEST_PANEL
 <p><img src="http://images.captionpix.com/layout/get-free-license-key.png" alt="CaptionPix Free Licence Request" /></p>
-<form id="captionpix_signup" name="captionpix_signup" method="post" action="{$home}"
-onSubmit="return captionpix_validate_form(this);">
-<input type="hidden" name="form_storm" value="submit"/>
-<input type="hidden" name="destination" value="captionpix"/>
-<input type="hidden" name="domain" value="{$domain}"/>
+<form id="captionpix_signup" name="captionpix_signup" method="post" action="{$home}" onsubmit="return captionpix_validate_form(this);">
+<input type="hidden" name="form_storm" value="submit" />
+<input type="hidden" name="destination" value="captionpix" />
+<input type="hidden" name="domain" value="{$domain}" />
 <label for="firstname">First Name<input id="firstname" name="firstname" type="text" value="" /></label><br/>
 <label for="email">Your Email<input id="email" name="email" type="text" /></label><br/>
 <label id="lsubject" for="subject">Subject<input id="subject" name="subject" type="text" /></label>
@@ -156,6 +155,7 @@ REQUEST_PANEL;
 	static function controller() {
  		global $screen_layout_columns;		
  		if (isset($_POST['options_update'])) echo self::save();
+ 		$this_url = $_SERVER['REQUEST_URI']; 		
     	$themes_url = captionpix_themes::get_url(); 
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
@@ -168,13 +168,13 @@ REQUEST_PANEL;
         </div>
         <div id="post-body" class="has-sidebar">
             <div id="post-body-content" class="has-sidebar-content">
-			<form method="post" id="slickr_flickr_options">
-			<?php wp_nonce_field(CAPTIONPIX_LICENCE); ?>
-			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
-			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
+			<form id="slickr_flickr_options" method="post" action="<?php echo $this_url; ?>">
 			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
 			<p class="submit">
 			<input type="submit"  class="button-primary" name="options_update" value="Save Changes" />
+			<?php wp_nonce_field(CAPTIONPIX_LICENCE); ?>
+			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
+			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
 			</p>
 			</form>
  			</div>

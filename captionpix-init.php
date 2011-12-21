@@ -1,5 +1,5 @@
 <?php
-define('CAPTIONPIX_VERSION', '1.1');
+define('CAPTIONPIX_VERSION', '1.2');
 define('CAPTIONPIX', 'captionpix');
 define('CAPTIONPIX_PATH', CAPTIONPIX.'/captionpix.php');
 define('CAPTIONPIX_HOME', 'http://www.captionpix.com/');

@@ -1,5 +1,4 @@
 <?php
-
 class CaptionPixThemeFactory {
 
 	private static $themes = array();
@@ -21,8 +20,8 @@ class CaptionPixThemeFactory {
     	return array_keys(self::get_themes());
 	}
 
-	public static function get_themes_in_set($myset) {
-		if (count(self::$themesets) == 0) self::refresh_themesets();
+	public static function get_themes_in_set($myset,$cache=true) {
+		if ((false == $cache) || count(self::$themesets) == 0) self::refresh_themesets($cache);
 		if (is_array(self::$themesets) && (count(self::$themesets) > 0)) 
 			return array_keys(self::$themesets,$myset);
  		else
@@ -50,7 +49,7 @@ class CaptionPixThemeFactory {
 		$themes = self::$defaults;
    		$more_themes = CaptionPixUpdater::get_updates($cache,'updates');
    		if (is_array($more_themes) && (count($more_themes) > 0)) $themes = array_merge($more_themes,$themes);
-        foreach ($themes as $key => $theme) { //allow plugin to determine image file locations, local, amazon s3, cdn
+        foreach ($themes as $key => $theme) { //allow local overrides of image file locations, local, amazon s3, cdn using constants placed in wp-config.php
 			if (array_key_exists('framebackground',$theme)) $themes[$key]['framebackground'] = str_replace('CAPTIONPIX_FRAMES_URL',CAPTIONPIX_FRAMES_URL,$theme['framebackground']);
 			if (array_key_exists('frameborder',$theme)) $themes[$key]['frameborder'] = str_replace('CAPTIONPIX_BORDERS_URL',CAPTIONPIX_FRAMES_URL,$theme['frameborder']);
 		}

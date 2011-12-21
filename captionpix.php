@@ -3,7 +3,7 @@
 Plugin Name: Caption Pix
 Plugin URI: http://www.captionpix.com
 Description: Displays images with captions beautifully
-Version: 1.1
+Version: 1.2
 Author: Russell Jamieson
 Author URI: http://www.russelljamieson.com
 
