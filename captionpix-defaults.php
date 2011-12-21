@@ -75,7 +75,7 @@ class captionpix_defaults {
 		global $current_screen;
 		add_contextual_help( $current_screen,
 			'<h3>CaptionPix</h3><p>Here you can set the default plugin settings.</p>'. 
-			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" target="_blank">Getting Started with CaptionPix</a></p>');	
+			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
 	}
 
 
@@ -130,12 +130,12 @@ class captionpix_defaults {
 		$s= sprintf('<select name="%1$s" id="%1$s"><option value="">%2$s</option>','theme',__('Please select'));
 	    for ($i=0; $i<count($themes); $i++) $s .= '<option value="'.$themes[$i] .'">'.ucwords($themes[$i]) . '</option>';
 	  	$s .= '</select>';
-	    $theme_list = str_replace('value="'.$theme.'"', 'selected value="'.$theme.'"', $s);
+	    $theme_list = str_replace('value="'.$theme.'"', 'selected="selected" value="'.$theme.'"', $s);
 		
-		$align_none = $options['align']=="none"?"selected":"";
-		$align_center = $options['align']=="center"?"selected":"";
-		$align_left = $options['align']=="left"?"selected":"";
-		$align_right = $options['align']=="right"?"selected":"";
+		$align_none = $options['align']=="none"?'selected="selected"':'';
+		$align_center = $options['align']=="center"?'selected="selected"':'';
+		$align_left = $options['align']=="left"?'selected="selected"':'';
+		$align_right = $options['align']=="right"?'selected="selected"':'';
 		print <<< GENERAL_PANEL
 <h4>Default Theme</h4>
 <p>The theme controls the formatting of the frame, image and caption by setting attributes such as colors, font, margins, padding, etc.</p>
@@ -149,10 +149,10 @@ that is around 50% of the width of the content section of your page. This is typ
 <h4>Default Image Alignment</h4>
 <p>Set this value if you typically want to center the image or float the image to the left or right of the text.</p>
 <label for="align">Image Alignment: </label><select name="align" id="align">
-<option value="none" {$align_none}>None</option>
-<option value="center" {$align_center}>Center </option>
-<option value="left" {$align_left}>Left</option>
-<option value="right" {$align_right}>Right</option>
+<option {$align_none} value="none">None</option>
+<option {$align_center} value="center">Center </option>
+<option {$align_left} value="left">Left</option>
+<option {$align_right} value="right">Right</option>
 </select>
 <h4>Default Side Margin</h4>
 <p>The side margin is used to create white space between the image and text paragraph. (This will be on the right of the image if the 
@@ -172,34 +172,32 @@ GENERAL_PANEL;
 
 	static function advanced_panel($post, $metabox) {		
 		$options = captionpix_get_options($this->use_cache());		
-		$auto_none = $options['autocaption']=="none"?"selected":"";
-		$auto_title = $options['autocaption']=="title"?"selected":"";
-		$auto_alt = $options['autocaption']=="alt"?"selected":"";
-		$auto_post = $options['autocaption']=="post"?"selected":"";
+		$auto_none = $options['autocaption']=="none"?'selected="selected"':'';
+		$auto_title = $options['autocaption']=="title"?'selected="selected"':'';
+		$auto_alt = $options['autocaption']=="alt"?'selected="selected"':'';
+		$auto_post = $options['autocaption']=="post"?'selected="selected"':'';
 		print <<< ADVANCED_PANEL
 <h4>Auto-captioning</h4>
 <p>Set auto-captioning if you want to caption the photos automatically based on their title attribute, the alt tag or the post name.</p>
 <p>Captions will only applied on pages with single posts and on the home page.</p>
 <label for="autocaption">Auto-captioning: </label><select name="autocaption" id="autocaption">
-<option value="none" {$auto_none}>None</option>
-<option value="title" {$auto_title}>Use Image Title as Caption</option>
-<option value="alt" {$auto_alt}>Use Image Alt as Caption</option>
-<option value="post" {$auto_post}>Use Post Title as Caption</option>
+<option {$auto_none} value="none">None</option>
+<option {$auto_title} value="title">Use Image Title as Caption</option>
+<option {$auto_alt} value="alt">Use Image Alt as Caption</option>
+<option {$auto_post} value="post">Use Post Title as Caption</option>
 </select>
 ADVANCED_PANEL;
 	}
-
 
 	static function help_panel($post, $metabox) {
 		$home = CAPTIONPIX_HOME;
 		print <<< HELP_PANEL
 <p><img src="http://images.captionpix.com/layout/captionpix-logo.jpg" alt="CaptionPix Image Captioning Plugin" /></p>
 <ul>
-<li><a target="_blank" href="{$home}">CaptionPix Plugin Home Page</a></li>
-<li><a target="_blank" href="{$home}instructions/">How To Use CaptionPix</a></li>
-<li><a target="_blank" href="{$home}tutorials/">FREE CaptionPix Tutorials</a></li>
-<li><a target="_blank" href="{$home}help/">CaptionPix Help</a></li>
-</ul>
+<li><a href="{$home}" rel="external">CaptionPix Plugin Home Page</a></li>
+<li><a href="{$home}instructions/" rel="external">How To Use CaptionPix</a></li>
+<li><a href="{$home}tutorials/" rel="external">FREE CaptionPix Tutorials</a></li>
+<li><a href="{$home}help/" rel="external">CaptionPix Help</a></li>
 </ul>
 HELP_PANEL;
 	}	
@@ -208,6 +206,7 @@ HELP_PANEL;
 	function options_panel() {
  		global $screen_layout_columns;		
  		if (isset($_POST['options_update'])) echo self::save();
+ 		$this_url = $_SERVER['REQUEST_URI']; 		
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
         <h2>CaptionPix Default Settings</h2>
@@ -217,14 +216,14 @@ HELP_PANEL;
         </div>
         <div id="post-body" class="has-sidebar">
             <div id="post-body-content" class="has-sidebar-content">
-			<form method="post" id="captionpix_options">
-			<?php wp_nonce_field(CAPTIONPIX_DEFAULTS); ?>
-			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
-			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
+			<form id="captionpix_options"  method="post" action="<?php echo $this_url; ?>" >
 			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
 			<p class="submit">
 			<input type="submit"  class="button-primary" name="options_update" value="Save Changes" />
 			<input type="hidden" name="page_options" value="defaults,theme,width,align,marginside,margintop,marginbottom" />
+			<?php wp_nonce_field(CAPTIONPIX_DEFAULTS); ?>
+			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
+			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
 			</p>
 			</form>
  			</div>

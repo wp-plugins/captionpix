@@ -72,7 +72,6 @@ class captionpix {
 		return $content;
 	}
 
-
 	static function autocaption_image($img, $autocaption) {
   		$class=preg_match('/class="[^"]*"/i', $img, $matches) ?  $matches[1] :'';
    		if (strpos($class,'caption-pix-outer') !== FALSE) return $img;
@@ -109,7 +108,6 @@ class captionpix {
     			($k == 'captionfontstyle') || ($k == 'captionalign') || ($k == 'float')) ? strtolower(trim($v)) : trim($v);
   		extract($attr);
   		$e = array();
-  		//if (isset($theme)) self::validate_in_set($e, 'theme', $theme, CaptionPixThemeFactory::get_theme_names());
   		if (isset($float)) self::validate_in_set($e, 'float', $float, array('left','right','center','none'));
   		if (isset($framecolor)) self::validate_color($e, 'framecolor', $framecolor);
   		if (isset($marginbottom)) self::check_number_range($e, 'marginbottom', $marginbottom, -250, 250);
@@ -203,6 +201,7 @@ class captionpix {
  	}
 
  	static private function build_frame($frame_params,$img_params,$caption_params) {
+		$width = ''; $align='';$margintop='';$marginbottom='';$padding='';$framecolor='';$framebackground='';
     	extract($frame_params);
     	if ($nostyle) 	
     		$style='';

@@ -58,7 +58,7 @@ class captionpix_themes {
 	}
 
 	static function load_style() {
-    	echo ('<link rel="stylesheet" id="'.CAPTIONPIX_ADMIN.'" href="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-themes.css?ver='.CAPTIONPIX_PLUGIN_URL.'" type="text/css" media="all" />');
+    	echo ('<link rel="stylesheet" id="'.CAPTIONPIX_THEMES.'" href="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-themes.css?ver='.CAPTIONPIX_PLUGIN_URL.'" type="text/css" media="all" />');
  	}
 
 	static function load_script() {
@@ -76,7 +76,7 @@ class captionpix_themes {
 		global $current_screen;
 		add_contextual_help( $current_screen,
 			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
-			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" target="_blank">Getting Started with CaptionPix</a></p>');	
+			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
 	}
 
 
@@ -125,8 +125,17 @@ FREE_PANEL;
 	}	
 
 	static function bonus_panel($post, $metabox) {
-
-		$themes = CaptionPixThemeFactory::get_themes_in_set('licensed');
+		$url= $_SERVER['REQUEST_URI'];
+        $refresh = array_key_exists('refresh',$_GET);
+        if ($refresh) {
+        	$cache = false;
+        	CaptionPixUpdater::get_updates($cache); //update cache with latest entitlements as a licensed user
+			}
+		else {
+			$cache = true;
+			$url .= "&refresh=true";
+			}
+        $themes = CaptionPixThemeFactory::get_themes_in_set('licensed',$cache);
 	    $themelist = '';
 	    foreach ($themes as $theme) $themelist .= '<li>'.self::captioned_screenshot($theme,'licensed').'</li>';
 		print <<< BONUS_PANEL
@@ -135,6 +144,8 @@ FREE_PANEL;
 <ul class="cpix-thumbnails">
 {$themelist}
 </ul>
+<p>New themes will appear here automatically within 24 hours of being released.  However, if you have been notified of a release of new 
+themes today then you should click to see the latest <a rel="nofollow" href="{$url}">CaptionPix themes.</a></p>
 BONUS_PANEL;
 	}	
 
@@ -150,23 +161,21 @@ For an annual membership fee we offer support and bonus features:
 PRO_PANEL;
 	}	
 
-
-
 	static function help_panel($post, $metabox) {
 		$home = CAPTIONPIX_HOME;
 		print <<< HELP_PANEL
 <p><img src="http://images.captionpix.com/layout/captionpix-logo.jpg" alt="CaptionPix Image Captioning Plugin" /></p>
 <ul>
-<li><a target="_blank" href="{$home}">CaptionPix Plugin Home Page</a></li>
-<li><a target="_blank" href="{$home}instructions/">How To Use CaptionPix</a></li>
-<li><a target="_blank" href="{$home}tutorials/">FREE CaptionPix Tutorials</a></li>
-<li><a target="_blank" href="{$home}help/">CaptionPix Help</a></li>
+<li><a href="{$home}" rel="external">CaptionPix Plugin Home Page</a></li>
+<li><a href="{$home}instructions/" rel="external">How To Use CaptionPix</a></li>
+<li><a href="{$home}tutorials/" rel="external">FREE CaptionPix Tutorials</a></li>
+<li><a href="{$home}help/" rel="external">CaptionPix Help</a></li>
 </ul>
 HELP_PANEL;
 	}	
 
-
 	static function controller() {
+ 		$this_url = $_SERVER['REQUEST_URI']; 	
  		global $screen_layout_columns;		
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
@@ -176,11 +185,13 @@ HELP_PANEL;
         </div>
         <div id="post-body" class="has-sidebar">
             <div id="post-body-content" class="has-sidebar-content">
-			<form method="post" id="slickr_flickr_options">
+			<form id="slickr_flickr_options" method="post" action="<?php echo $this_url; ?>">
+			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
+			<fieldset>
 			<?php wp_nonce_field(CAPTIONPIX_THEMES); ?>
 			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
 			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
-			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
+			</fieldset>			
 			</form>
  			</div>
         </div>

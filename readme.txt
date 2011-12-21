@@ -4,7 +4,7 @@ Donate link: http://www.captionpix.com/donate/
 Tags: image caption, captioning, photo frame
 Requires at least: 2.8
 Tested up to: 3.2.1
-Stable tag: 1.1
+Stable tag: 1.2
 
 A WordPress image captioning plugin that makes it easy to align a framed and captioned image to the left, right or center of the page. 
 
@@ -32,14 +32,16 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Changelog ==
 
+= 1.2 = Add link to allow refresh of themes 
+
 = 1.1 = Force max-width on image to be 100% 
 
 = 1.0 = Initial Version
 
 == Upgrade Notice ==
 
-= 1.1 = 
-* Optional - fix for WordPress themes that restrict the image width
+= 1.2 = 
+* Optional - add link to refresh list of available CaptinPix Themes
 
 
 == How to Use The Plugin ==
