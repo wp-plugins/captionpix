@@ -3,7 +3,7 @@ Contributors: powerblogservice, diywebmastery
 Donate link: http://www.captionpix.com/donate/
 Tags: image caption, captioning, photo frame
 Requires at least: 2.8
-Tested up to: 3.2.1
+Tested up to: 3.3
 Stable tag: 1.2
 
 A WordPress image captioning plugin that makes it easy to align a framed and captioned image to the left, right or center of the page. 
