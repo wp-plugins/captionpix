@@ -36,18 +36,26 @@ captionmarginbottom - space to leave at the bottom of the caption in pixels
 captiontext       - the caption text to be displayed
 */
 
-add_filter('widget_text', 'do_shortcode', 11);
-//add_filter('the_content', array('captionpix','autocaption'), 10); //autocaptioning coming in a later release
-add_shortcode('captionpix', array('captionpix','display'));
 
-class captionpix {
+class CaptionPix {
+
+	static function init() {
+		add_filter('widget_text', 'do_shortcode', 11);
+		//add_filter('the_content', array('captionpix','autocaption'), 10); //autocaptioning coming in a later release
+		add_shortcode('captionpix', array(__CLASS__,'display'));
+		add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue_styles'));
+	}
+
+	static function enqueue_styles() {
+		wp_enqueue_style('captionpix',CAPTIONPIX_PLUGIN_URL.'/styles/public.css', array(), CAPTIONPIX_VERSION );
+	}	
 
 	static function display ($attr) {
 		$errors = self::validate($attr);
   		if (count($errors) > 0 ) return implode('<br/>',$errors); //exit if errors
-  		$mytheme = array_key_exists('theme', $attr)? $attr['theme'] : captionpix_get_option('theme'); //get the chosen theme name
+  		$mytheme = array_key_exists('theme', $attr)? $attr['theme'] : CaptionPixOptions::get_option('theme'); //get the chosen theme name
   		$theme_defaults = CaptionPixThemeFactory::get_theme($mytheme);   //get theme defaults
-  		$defaults = array_merge(captionpix_get_options(), $theme_defaults); //get combined list of defaults
+  		$defaults = array_merge(CaptionPixOptions::get_options(), $theme_defaults); //get combined list of defaults
 		$nooverrides = $defaults['nooverrides']=='theme' ? array_keys($theme_defaults) : explode(",",$defaults['nooverrides']);
 		if (count($nooverrides) > 0) foreach ($nooverrides as $key) if (array_key_exists($key,$attr)) unset($attr[$key]); //suppress unwanted overrides
   		$params = shortcode_atts($defaults , $attr ); //get any user overrides
@@ -114,7 +122,7 @@ class captionpix {
   		if (isset($margintop)) self::check_number_range($e, 'margintop', $margintop, -250, 250);
   		if (isset($marginside)) self::check_number_range($e, 'marginside', $marginside, 0, 50);
   		if (isset($padding)) self::check_number_range($e, 'padding', $padding, 0, 50);
-  		if (isset($width)) self::check_number_range($e, 'width', $width, 100, 1280);
+  		if (isset($width)) self::check_number_range($e, 'width', $width, 0, 1280);
 		if (isset($captionfontcolor)) self::validate_color($e, 'captionfontcolor', $captionfontcolor);
   		if (isset($captionalign)) self::validate_in_set($e, 'captionalign', $captionalign, array('left','right','center'));
   		if (isset($captionfontsize)) self::check_number_range($e, 'captionfontsize', $captionfontsize, 4, 72);
@@ -159,15 +167,17 @@ class captionpix {
 	}
 	
 	static private function build_caption($caption_params) {
-   		extract($caption_params);  
+        $width='';
+        $class='';
+  		extract($caption_params);  
    		if (empty($text)) return '';
-
    		if (!empty($class)) 
    			$style = 'class="'.$class.'"';   //style using only CSS class
    		else {
-   			if (isset($paddingtop)) $paddingtop = '; padding-top:'.$paddingtop.'px';
-   			if (isset($paddingbottom)) $paddingbottom = ';padding-bottom:'.$paddingbottom.'px';
-   			if (!empty($width)) $width = '; width:'.$width.'px';
+   			$padding = sprintf(';padding : %1$spx %2$spx %3$spx %4$spx',
+   				isset($paddingtop) ? $paddingtop : 5, 10, isset($paddingbottom) ? $paddingbottom : 5, 10);
+			$width = empty($width) ? '' : ('; width:'.$width.'px');
+   			if (!empty($maxwidth)) $maxwidth = '; max-width:'.$maxwidth.'px';   			
    			if (!empty($align)) $align = '; text-align:'.$align;
    			if (!empty($fontfamily)) $fontfamily = ';font-family:'.$fontfamily;
 			if (!empty($fontstyle)) $fontstyle = '; font-style:'.$fontstyle;
@@ -176,42 +186,46 @@ class captionpix {
    				$lineheight = '; line-height:'.$fontsize.'px';
    				$fontsize = '; font-size:'.$fontsize.'px';
    			}
-   			$style = 'style="display:block; margin-left:auto; margin-right:auto; '.$paddingtop.$paddingbottom.
-   				$width.$align.$fontfamily.$fontstyle.$fontcolor.$fontsize.$lineheight.'"';
+   			$style = 'style="display:inline-block; margin: 0 auto'.$padding.
+   				$width.$maxwidth.$align.$fontfamily.$fontstyle.$fontcolor.$fontsize.$lineheight.'"';
    		}
-   		return '<span '.$style.'>'.$text.'</span>';
+   		return sprintf('<span %1$s>%2$s</span>',$style, $text);
  	}
  
  	static private function build_image($img_params) {
-    	extract($img_params);
+	$width=''; $border='';
+   	extract($img_params);
     
 		$badchars = array('&',  '*',   '\'',   '?', '!', '"', '`', '_');
 		$title =  str_replace($badchars, "", $title);
 		$alt = empty($alt) ? $title : htmlspecialchars($alt, ENT_QUOTES) ;
-		$width = 'max-width:100%; width:'.$width.'px';
-        $padding = ';padding:'.$padding;
-        $margin = ';margin:'.$margin;		
+		$padding = 'padding:'.$padding;
+        $margin = ';margin:'.$margin;	
+		$width = empty($width) ? '' : (';max-width:100%; width:'.$width.'px');        	
         if (!empty($linkrel)) $linkrel = ' rel="'.$linkrel.'"'; 
         if (!empty($linkclass)) $linkclass = ' class="'.$linkclass.'"'; 
         if (!empty($bordercolor)) 
         	$border = ';border:'.(empty($bordersize) ? '1' : $bordersize).'px solid '.$bordercolor;
         elseif (!empty($border) )
             $border  = ';border:'.$border;
-    	return '<a href="'.($link ? $link : $src).'"'.$linkrel.$linkclass.'><img style="'.$width.$padding.$margin.$border.'" src="'.$src.'" title="'.$title.'" alt="'.$alt.'" /></a>';    
+    	return sprintf('<a%1$s href="%2$s" style="display:block" %3$s><img src="%4$s" style="%5$s" title="%6$s" alt="%7$s" /></a>',    
+			$linkrel, $link ? $link : $src, $linkclass, $src, $padding.$margin.$width.$border, $title, $alt);    
  	}
 
  	static private function build_frame($frame_params,$img_params,$caption_params) {
 		$width = ''; $align='';$margintop='';$marginbottom='';$padding='';$framecolor='';$framebackground='';
     	extract($frame_params);
-    	if ($nostyle) 	
-    		$style='';
-		else {    	
-    		$width = 'width:'.$width.'px;';
+    	if ($nostyle) { 	
+    		$style1='';
+    		$style2='';
+		} else {    	
+    		$width = empty($width) ? '' : (';width:'.$width.'px;');
+    		$display = 'display: ' . (empty($width) ? 'inline-block' : 'block'); //shrink to fit if responsive
 			switch($align){
-    			case "right" :  $align = 'float:right; margin-left:'.$marginside.'px'; break;
-    			case "left" : $align = 'float:left; margin-right:'.$marginside.'px'; break;
-    			case "center": $align = 'float:none; margin:0 auto; display:block; clear:both'; break;
-  				default: $align='float:none';
+    			case "right": $align = ';float:right; margin-right: 5px; margin-left:'.$marginside.'px'; break;
+    			case "left": $align = ';float:left; margin-left: 5px; margin-right:'.$marginside.'px'; break;
+    			case "center": $align = ';float:none; margin:0 auto; text-align:center; width:100%; overflow:hidden;position: relative; clear:both'; break;
+  				default: $align=';float:none';
   			}
 			$margintop = ';margin-top:'.$margintop.'px';
 			$marginbottom = ';margin-bottom:'.$marginbottom.'px';
@@ -222,10 +236,12 @@ class captionpix {
 				$frameborder = ';'.$frameborder; 
 			elseif (!empty($framebordercolor)) 
 				$frameborder = ';border:'.(empty($framebordersize) ? '1' : $framebordersize).'px solid '.$framebordercolor;
- 			$style = 'style="'.$width.$align.$margintop.$marginbottom.$padding.$framecolor.$framebackground.$frameborder.'"';
+ 			$style1 = ' style="'.$display.$width.$align.$margintop.$marginbottom.'"';
+ 			$style2 = ' style="display:inline-block'.$padding.$framecolor.$framebackground.$frameborder.'"';
  		}
-		return '<div class="caption-pix-outer '.$theme.'"'.$style.'>'.
-	    	   '<div class="caption-pix-inner">'.self::build_image($img_params).self::build_caption($caption_params).'</div></div>';
+		return '<span class="captionpix-outer '.'"'.$style1.'>'.
+			   '<span class="captionpix-frame '.$theme.'"'.$style2.'>'.
+	    	   '<span class="captionpix-inner">'.self::build_image($img_params).self::build_caption($caption_params).'</span></span></span>';
  	}
 
 	static private function build_html($params) {
@@ -237,17 +253,25 @@ class captionpix {
 				$ckey = substr($key,7);
 				$caption_params[$ckey] = $value;
 			}
-			elseif (substr($key,0,3)=='img') {
+			elseif (substr($key,0,3)=='img'){
 				$ikey = substr($key,3);
 				$img_params[$ikey] = $value;
+			} elseif ('width'==$key){
+				$img_params[$key] = $value;
 			} else {
 				$frame_params[$key] = $value;
 			}
 		}
-		$img_params['width']=empty($img_params['bordersize'])?$frame_params['width'] : ($frame_params['width'] - (2*$img_params['bordersize']));
-		$caption_params['width'] = $img_params['width']-20;
+		if (empty($img_params['width'])) {
+			wp_enqueue_script('captionpix', CAPTIONPIX_PLUGIN_URL."/scripts/public.js", array('jquery'),CAPTIONPIX_VERSION,true);
+		} else {
+			$caption_params['width'] = $img_params['width']-20;
+			$frame_params['width']= $img_params['width'] + $img_params['padding'] + 
+				empty($img_params['bordersize'])?0  : (2*$img_params['bordersize']);
+		}
 		return self::build_frame($frame_params,$img_params,$caption_params);
 	}
+
 
 }
 

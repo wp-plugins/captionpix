@@ -1,24 +1,13 @@
 <?php
-/*
-Author: Russell Jamieson
-Author URI: http://www.russelljamieson.com
-Copyright &copy; 2010-2011 &nbsp; Russell Jamieson
-*/
+class CaptionpixDefaults {
 
-define('CAPTIONPIX_DEFAULTS', 'captionpix_defaults');
-
-class captionpix_defaults {
-
-    private static $initialized = false;
-    private static $slug = 'captionpix_defaults';
     private static $parenthook  = CAPTIONPIX;
+    private static $slug = 'captionpix_defaults';
     private static $screen_id;
 
 	static function init() {
-	    if (self::$initialized) return true;
-		self::$initialized = true;
 	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-		add_filter('screen_layout_columns', array(CAPTIONPIX_DEFAULTS, 'screen_layout_columns'), 10, 2);
+		add_action('admin_menu',array(__CLASS__, 'admin_menu'));				
 	}
 
     static function get_slug() {
@@ -37,6 +26,12 @@ class captionpix_defaults {
 		return admin_url('admin.php?page='.self::$slug);
 	}
 
+	static function admin_menu() {
+		$screen_id = self::get_screen_id();
+		add_submenu_page(self::get_parenthook(), __('CaptionPix Default Settings'), __('Settings'), 'manage_options', 
+			self::get_slug(), array(__CLASS__,'options_panel'));
+		add_action('load-'.$screen_id, array(__CLASS__, 'load_page'));
+	}
 
 	static function screen_layout_columns($columns, $screen) {
 		if (!defined( 'WP_NETWORK_ADMIN' ) && !defined( 'WP_USER_ADMIN' )) {
@@ -47,51 +42,39 @@ class captionpix_defaults {
 		return $columns;
 	}
 
-	static function admin_menu() {
-		self::init();
-		$screen_id = self::get_screen_id();
-		add_submenu_page(self::get_parenthook(), __('CaptionPix Default Settings'), __('Settings'), 'manage_options', 
-			self::get_slug(), array(CAPTIONPIX_DEFAULTS,'options_panel'));
-		add_action('load-'.$screen_id, array(CAPTIONPIX_DEFAULTS, 'load_page'));
-		//add_action('admin_head-'.$screen_id, array(CAPTIONPIX_DEFAULTS, 'load_style'));
-		//add_action('admin_footer-'.$screen_id, array(CAPTIONPIX_DEFAULTS, 'load_script'));		
-		add_action('admin_footer-'.$screen_id, array(CAPTIONPIX_DEFAULTS, 'toggle_postboxes'));
-	}
-
-	static function load_style() {
-    	echo ('<link rel="stylesheet" id="'.CAPTIONPIX_ADMIN.'" href="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-defaults.css?ver='.CAPTIONPIX_PLUGIN_URL.'" type="text/css" media="all" />');
- 	}
-
-	static function load_script() {
-    	echo('<script type="text/javascript" src="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-defaults.js?ver='.CAPTIONPIX_VERSION.'"></script>');    
-	}	
-
 	static function load_page() {
-		wp_enqueue_script('common');
-		wp_enqueue_script('wp-lists');
-		wp_enqueue_script('postbox');	
-		add_meta_box('captionpix-general', __('Display Options',CAPTIONPIX), array(CAPTIONPIX_DEFAULTS, 'general_panel'), self::get_screen_id(), 'normal', 'core');
-		add_meta_box('captionpix-help', __('Help',CAPTIONPIX), array(CAPTIONPIX_DEFAULTS, 'help_panel'), self::get_screen_id(), 'side', 'core');
+		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
+		add_meta_box('captionpix-general', __('Display Options',CAPTIONPIX), array(__CLASS__, 'general_panel'), self::get_screen_id(), 'normal', 'core');
+		add_meta_box('captionpix-help', __('Help',CAPTIONPIX), array(__CLASS__, 'help_panel'), self::get_screen_id(), 'side', 'core');
+		add_filter('screen_layout_columns', array(__CLASS__, 'screen_layout_columns'), 10, 2);
 		global $current_screen;
 		add_contextual_help( $current_screen,
 			'<h3>CaptionPix</h3><p>Here you can set the default plugin settings.</p>'. 
 			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
 	}
 
+	static function enqueue_scripts() {
+//		wp_enqueue_script('captionpix-defaults',CAPTIONPIX_PLUGIN_URL.'/scripts/defaults.js', array(), CAPTIONPIX_VERSION, true );
+		wp_enqueue_script('common');
+		wp_enqueue_script('wp-lists');
+		wp_enqueue_script('postbox');	
+		add_action('admin_footer-'.$screen_id, array(__CLASS__, 'toggle_postboxes'));
+	}
+
+
 
     static function toggle_postboxes() {
-    ?>
-	<script type="text/javascript">
-		//<![CDATA[
+    	$hook = self::get_screen_id();
+    	print <<< TOGGLE_POSTBOXES
+<script type="text/javascript">
+//<![CDATA[
 		jQuery(document).ready( function($) {
-			// close postboxes that should be closed
 			$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-			// postboxes setup
-			postboxes.add_postbox_toggles('<?php echo self::get_screen_id(); ?>');
+			postboxes.add_postbox_toggles('{$hook}');
 		});
-		//]]>
-	</script>
-	<?php
+//]]>
+</script>
+TOGGLE_POSTBOXES;
     }
 
     static function use_cache() {
@@ -99,8 +82,8 @@ class captionpix_defaults {
     }
 
 	static function save() {
-		check_admin_referer(CAPTIONPIX_DEFAULTS);
-		$old_options = captionpix_get_options(false); //fetch old options from database
+		check_admin_referer(__CLASS__);
+		$old_options = CaptionPixOptions::get_options(false); //fetch old options from database
   		$new_options = array();
   		$options = explode(',', stripslashes($_POST['page_options']));
   		if ($options) {
@@ -110,25 +93,25 @@ class captionpix_defaults {
     			$new_options[$option] = trim(stripslashes($_POST[$option]));
     		} //end for
 
-   			$updates =  update_option("captionpix_options", $new_options) ;
+   			$updates =  CaptionPixOptions::save_options ($new_options) ;
   		    $class="updated fade";
    			if ($updates) 
-       			$message = __("CaptionPix Settings saved.",CAPTIONPIX_ADMIN);
+       			$message = __("CaptionPix Settings saved.",CAPTIONPIX);
    			else
-       			$message = __("No CaptionPix settings were changed since last update.",CAPTIONPIX_ADMIN);
+       			$message = __("No CaptionPix settings were changed since last update.",CAPTIONPIX);
   		} else {
   		    $class="error";
-       		$message= __("CaptionPix settings not found!",CAPTIONPIX_ADMIN);
+       		$message= __("CaptionPix settings not found!",CAPTIONPIX);
   		}
   		return '<div id="message" class="' . $class .' "><p>' . $message. '</p></div>';
 	}
 
 	static function general_panel($post, $metabox) {		
-		$options = captionpix_get_options(self::use_cache());	
+		$options = CaptionPixOptions::get_options(self::use_cache());	
 		$themes = CaptionPixThemeFactory::get_theme_names();
 		$theme= $options['theme'];
 		$s= sprintf('<select name="%1$s" id="%1$s"><option value="">%2$s</option>','theme',__('Please select'));
-	    for ($i=0; $i<count($themes); $i++) $s .= '<option value="'.$themes[$i] .'">'.ucwords($themes[$i]) . '</option>';
+	    for ($i=0; $i<count($themes); $i++) $s .= '<option value="'.$themes[$i] .'">'.str_replace(' ','-',ucwords(str_replace('-',' ',$themes[$i]))) . '</option>';
 	  	$s .= '</select>';
 	    $theme_list = str_replace('value="'.$theme.'"', 'selected="selected" value="'.$theme.'"', $s);
 		
@@ -144,6 +127,7 @@ class captionpix_defaults {
 <h4>Default Image Width</h4>
 <p>The width is used to set the size of the image. If you generally want to wrap a paragraph of text around the image then choose a value 
 that is around 50% of the width of the content section of your page. This is typically be around 300 pixels.</p>
+<p>However, if you want the site to be mobile respoonsive and have images appear at the maximum possible size for the device then set this value to zero.</p>
 <p>If you supply it here, the plugin will remember it so you do not need to supply it for every image.</p>
 <label for="width">Image Width: </label><input type="text" name="width" id="width" size="4" maxlength="4" value="{$options['width']}" /> pixels
 <h4>Default Image Alignment</h4>
@@ -171,7 +155,7 @@ GENERAL_PANEL;
 	}
 
 	static function advanced_panel($post, $metabox) {		
-		$options = captionpix_get_options($this->use_cache());		
+		$options = CaptionPixOptions::get_options($this->use_cache());		
 		$auto_none = $options['autocaption']=="none"?'selected="selected"':'';
 		$auto_title = $options['autocaption']=="title"?'selected="selected"':'';
 		$auto_alt = $options['autocaption']=="alt"?'selected="selected"':'';
@@ -221,7 +205,7 @@ HELP_PANEL;
 			<p class="submit">
 			<input type="submit"  class="button-primary" name="options_update" value="Save Changes" />
 			<input type="hidden" name="page_options" value="defaults,theme,width,align,marginside,margintop,marginbottom" />
-			<?php wp_nonce_field(CAPTIONPIX_DEFAULTS); ?>
+			<?php wp_nonce_field(__CLASS__); ?>
 			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
 			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
 			</p>

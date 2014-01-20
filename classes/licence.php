@@ -1,24 +1,13 @@
 <?php
-/*
-Author: Russell Jamieson
-Author URI: http://www.russelljamieson.com
-Copyright &copy; 2010-2011 &nbsp; Russell Jamieson
-*/
+class CaptionpixLicence {
 
-define('CAPTIONPIX_LICENCE', 'captionpix_licence');
-
-class captionpix_licence {
-
-    private static $initialized = false;
-    private static $slug = 'captionpix_license';
     private static $parenthook  = CAPTIONPIX;
+    private static $slug = 'captionpix_license';
     private static $screen_id;
 
 	static function init() {
-	    if (self::$initialized) return true;
-		self::$initialized = true;
 	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-		add_filter('screen_layout_columns', array(CAPTIONPIX_LICENCE, 'screen_layout_columns'), 10, 2);
+		add_action('admin_menu',array(__CLASS__, 'admin_menu'));
 	}
 
     static function get_slug() {
@@ -38,6 +27,52 @@ class captionpix_licence {
 	}
 
 
+	static function admin_menu() {
+		$screen_id = self::get_screen_id();
+		add_submenu_page(self::get_parenthook(), __('CaptionPix License'), __('License'), 'manage_options', self::get_slug(), array(__CLASS__,'controller'));
+		add_action('load-'.$screen_id, array(__CLASS__, 'load_page'));	
+	}
+
+	static function load_page() {
+ 		if (isset($_POST['options_update'])) echo self::save();
+	
+		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
+		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
+		add_meta_box('captionpix-licence', __('CaptionPix License',CAPTIONPIX), array(__CLASS__, 'licence_panel'), self::get_screen_id(), 'normal', 'core');
+		add_meta_box('captionpix-request', __('Free License Key',CAPTIONPIX), array(__CLASS__, 'request_panel'), self::get_screen_id(), 'side', 'core');
+		add_filter('screen_layout_columns', array(__CLASS__, 'screen_layout_columns'), 10, 2);
+		global $current_screen;
+		add_contextual_help( $current_screen,
+			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
+			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
+	}
+
+	static function enqueue_styles() {
+		wp_enqueue_style('captionpix-licence',CAPTIONPIX_PLUGIN_URL.'/styles/licence.css', array(), CAPTIONPIX_VERSION );
+	}
+
+	static function enqueue_scripts() {
+		wp_enqueue_script('captionpix-licence',CAPTIONPIX_PLUGIN_URL.'/scripts/licence.js', array(), CAPTIONPIX_VERSION, true );
+		wp_enqueue_script('common');
+		wp_enqueue_script('wp-lists');
+		wp_enqueue_script('postbox');	
+		add_action('admin_footer-'.$screen_id, array(__CLASS__, 'toggle_postboxes'));
+	}
+
+    static function toggle_postboxes() {
+    	$hook = self::get_screen_id();
+    	print <<< TOGGLE_POSTBOXES
+<script type="text/javascript">
+//<![CDATA[
+		jQuery(document).ready( function($) {
+			$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
+			postboxes.add_postbox_toggles('{$hook}');
+		});
+//]]>
+</script>
+TOGGLE_POSTBOXES;
+    }
+
 	static function screen_layout_columns($columns, $screen) {
 		if (!defined( 'WP_NETWORK_ADMIN' ) && !defined( 'WP_USER_ADMIN' )) {
 			if ($screen == self::get_screen_id()) {
@@ -47,59 +82,13 @@ class captionpix_licence {
 		return $columns;
 	}
 
-	static function admin_menu() {
-		self::init();
-		$screen_id = self::get_screen_id();
-		add_submenu_page(self::get_parenthook(), __('CaptionPix License'), __('License'), 'manage_options', self::get_slug(), array(CAPTIONPIX_LICENCE,'controller'));
-		add_action('load-'.$screen_id, array(CAPTIONPIX_LICENCE, 'load_page'));
-		add_action('admin_head-'.$screen_id, array(CAPTIONPIX_LICENCE, 'load_style'));
-		add_action('admin_footer-'.$screen_id, array(CAPTIONPIX_LICENCE, 'load_script'));		
-		add_action('admin_footer-'.$screen_id, array(CAPTIONPIX_LICENCE, 'toggle_postboxes'));
-	}
-
-	static function load_style() {
-    	echo ('<link rel="stylesheet" id="'.CAPTIONPIX_LICENCE.'" href="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-licence.css?ver='.CAPTIONPIX_PLUGIN_URL.'" type="text/css" media="all" />');
- 	}
-
-	static function load_script() {
-    	echo('<script type="text/javascript" src="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-licence.js?ver='.CAPTIONPIX_VERSION.'"></script>');    
-	}	
-
-	static function load_page() {
-		wp_enqueue_script('common');
-		wp_enqueue_script('wp-lists');
-		wp_enqueue_script('postbox');	
-		add_meta_box('captionpix-licence', __('CaptionPix License',CAPTIONPIX), array(CAPTIONPIX_LICENCE, 'licence_panel'), self::get_screen_id(), 'normal', 'core');
-		add_meta_box('captionpix-request', __('Free License Key',CAPTIONPIX), array(CAPTIONPIX_LICENCE, 'request_panel'), self::get_screen_id(), 'side', 'core');
-		global $current_screen;
-		add_contextual_help( $current_screen,
-			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
-			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
-	}
-
-
-    static function toggle_postboxes() {
-    ?>
-	<script type="text/javascript">
-		//<![CDATA[
-		jQuery(document).ready( function($) {
-			// close postboxes that should be closed
-			$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-			// postboxes setup
-			postboxes.add_postbox_toggles('<?php echo self::get_screen_id(); ?>');
-		});
-		//]]>
-	</script>
-	<?php
-    }
-
 	static function save() {
-		check_admin_referer(CAPTIONPIX_LICENCE);
+		check_admin_referer(__CLASS__);
        	if (CaptionPixUpdater::save_licence(trim(stripslashes($_POST['licence'])))) 
-       		$message = __("CaptionPix License saved.",CAPTIONPIX_ADMIN);
+       		$message = __("CaptionPix License saved.",CAPTIONPIX);
  		else
-       		$message = __("CaptionPix License has not changed.",CAPTIONPIX_ADMIN);
- 		CaptionPixUpdater::get_updates(false); //update cache with new entitlements as a licensed user
+       		$message = __("CaptionPix License has not changed.",CAPTIONPIX);
+ 		CaptionPixUpdater::update(false); //update cache with new entitlements as a licensed user
   		return '<div id="message" class="updated fade"><p>' . $message. '</p></div>';
 	}
 
@@ -138,8 +127,9 @@ LICENCE_PANEL;
 	static function request_panel($post, $metabox) {
 		$home = CAPTIONPIX_HOME;
 		$domain = parse_url(site_url(),PHP_URL_HOST);
+		$images_url = CAPTIONPIX_IMAGES_URL;
 		print <<< REQUEST_PANEL
-<p><img src="http://images.captionpix.com/layout/get-free-license-key.png" alt="CaptionPix Free Licence Request" /></p>
+<p><img src="{$images_url}/get-free-license-key.png" alt="CaptionPix Free Licence Request" /></p>
 <form id="captionpix_signup" name="captionpix_signup" method="post" action="{$home}" onsubmit="return captionpix_validate_form(this);">
 <input type="hidden" name="form_storm" value="submit" />
 <input type="hidden" name="destination" value="captionpix" />
@@ -147,16 +137,15 @@ LICENCE_PANEL;
 <label for="firstname">First Name<input id="firstname" name="firstname" type="text" value="" /></label><br/>
 <label for="email">Your Email<input id="email" name="email" type="text" /></label><br/>
 <label id="lsubject" for="subject">Subject<input id="subject" name="subject" type="text" /></label>
-<input type="submit" value="" />
+<input type="image" src="{$images_url}/get-free-license-key-button.png" />
 </form>
 REQUEST_PANEL;
 	}	
 
 	static function controller() {
  		global $screen_layout_columns;		
- 		if (isset($_POST['options_update'])) echo self::save();
  		$this_url = $_SERVER['REQUEST_URI']; 		
-    	$themes_url = captionpix_themes::get_url(); 
+    	$themes_url = CaptionpixThemes::get_url(); 
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
         <h2>Obtaining a <span class="cpix-highlight">FREE</span> CaptionPix Licence Is A Good Idea!</h2>
@@ -172,7 +161,7 @@ REQUEST_PANEL;
 			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
 			<p class="submit">
 			<input type="submit"  class="button-primary" name="options_update" value="Save Changes" />
-			<?php wp_nonce_field(CAPTIONPIX_LICENCE); ?>
+			<?php wp_nonce_field(__CLASS__); ?>
 			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
 			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
 			</p>
