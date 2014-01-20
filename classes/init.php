@@ -1,12 +1,4 @@
 <?php
-define('CAPTIONPIX_VERSION', '1.2');
-define('CAPTIONPIX', 'captionpix');
-define('CAPTIONPIX_PATH', CAPTIONPIX.'/captionpix.php');
-define('CAPTIONPIX_HOME', 'http://www.captionpix.com/');
-define('CAPTIONPIX_PLUGIN_URL', plugins_url(CAPTIONPIX));
-if (!defined('CAPTIONPIX_BORDERS_URL')) define('CAPTIONPIX_BORDERS_URL', CAPTIONPIX_PLUGIN_URL.'/borders');
-if (!defined('CAPTIONPIX_FRAMES_URL')) define('CAPTIONPIX_FRAMES_URL', CAPTIONPIX_PLUGIN_URL.'/frames');
-
 $captionpix_defaults = array(
     'theme'=> 'crystal',
     'align' => 'left',
@@ -42,6 +34,7 @@ $captionpix_defaults = array(
     'captionfontweight' => 'normal',
     'captionpaddingtop' => '10',
     'captionpaddingbottom' => '5',
+    'captionmaxwidth' => '',
     'captiontext' => '',
     'autocaption' => 'none'
     );

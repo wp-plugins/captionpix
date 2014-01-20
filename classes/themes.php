@@ -1,24 +1,13 @@
 <?php
-/*
-Author: Russell Jamieson
-Author URI: http://www.russelljamieson.com
-Copyright &copy; 2010-2011 &nbsp; Russell Jamieson
-*/
+class CaptionpixThemes {
 
-define('CAPTIONPIX_THEMES', 'captionpix_themes');
-
-class captionpix_themes {
-
-    private static $initialized = false;
-    private static $slug = 'captionpix_themes';
     private static $parenthook  = CAPTIONPIX;
+    private static $slug = 'captionpix_themes';
     private static $screen_id;
 
 	static function init() {
-	    if (self::$initialized) return true;
-		self::$initialized = true;
 	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-		add_filter('screen_layout_columns', array(CAPTIONPIX_THEMES, 'screen_layout_columns'), 10, 2);
+		add_action('admin_menu',array(__CLASS__, 'admin_menu'));		
 	}
 
     static function get_slug() {
@@ -38,41 +27,17 @@ class captionpix_themes {
 	}
 
 
-	static function screen_layout_columns($columns, $screen) {
-		if (!defined( 'WP_NETWORK_ADMIN' ) && !defined( 'WP_USER_ADMIN' )) {
-			if ($screen == self::get_screen_id()) {
-				$columns[self::get_screen_id()] = 2;
-			}
-		}
-		return $columns;
-	}
-
 	static function admin_menu() {
-		self::init();
 		$screen_id = self::get_screen_id();
-		add_submenu_page(self::get_parenthook(), __('CaptionPix Themes'), __('Themes'), 'manage_options', self::get_slug(), array(CAPTIONPIX_THEMES,'controller'));
-		add_action('load-'.$screen_id, array(CAPTIONPIX_THEMES, 'load_page'));
-		add_action('admin_head-'.$screen_id, array(CAPTIONPIX_THEMES, 'load_style'));
-		//add_action('admin_footer-'.$screen_id, array(CAPTIONPIX_THEMES, 'load_script'));		
-		add_action('admin_footer-'.$screen_id, array(CAPTIONPIX_THEMES, 'toggle_postboxes'));
+		add_submenu_page(self::get_parenthook(), __('CaptionPix Themes'), __('Themes'), 'manage_options', self::get_slug(), array(__CLASS__,'controller'));
+		add_action('load-'.$screen_id, array(__CLASS__, 'load_page'));
 	}
-
-	static function load_style() {
-    	echo ('<link rel="stylesheet" id="'.CAPTIONPIX_THEMES.'" href="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-themes.css?ver='.CAPTIONPIX_PLUGIN_URL.'" type="text/css" media="all" />');
- 	}
-
-	static function load_script() {
-    	echo('<script type="text/javascript" src="'.CAPTIONPIX_PLUGIN_URL.'/captionpix-themes.js?ver='.CAPTIONPIX_VERSION.'"></script>');    
-	}	
 
 	static function load_page() {
-		wp_enqueue_script('common');
-		wp_enqueue_script('wp-lists');
-		wp_enqueue_script('postbox');	
-		add_meta_box('captionpix-free-themes', __('Free CaptionPix Themes',CAPTIONPIX), array(CAPTIONPIX_THEMES, 'free_panel'), self::get_screen_id(), 'normal', 'core');
-		add_meta_box('captionpix-bonus-themes', __('Free Licensed CaptionPix Themes',CAPTIONPIX), array(CAPTIONPIX_THEMES, 'bonus_panel'), self::get_screen_id(), 'normal', 'core');
-		add_meta_box('captionpix-pro', __(' CaptionPix Pro Themes',CAPTIONPIX), array(CAPTIONPIX_THEMES, 'pro_panel'), self::get_screen_id(), 'normal', 'core');
-		add_meta_box('captionpix-help', __('CaptionPix',CAPTIONPIX), array(CAPTIONPIX_THEMES, 'help_panel'), self::get_screen_id(), 'side', 'core');
+		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
+		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
+		add_meta_box('captionpix-free-themes', __('Free CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'free_panel'), self::get_screen_id(), 'normal', 'core');
+		add_meta_box('captionpix-bonus-themes', __('Free Licensed CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'bonus_panel'), self::get_screen_id(), 'normal', 'core');
 		global $current_screen;
 		add_contextual_help( $current_screen,
 			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
@@ -80,20 +45,32 @@ class captionpix_themes {
 	}
 
 
+	static function enqueue_styles() {
+		wp_enqueue_style('captionpix-themes',CAPTIONPIX_PLUGIN_URL.'/styles/themes.css', array(), CAPTIONPIX_VERSION );
+	}
+
+	static function enqueue_scripts() {
+		//wp_enqueue_script('captionpix-themes',CAPTIONPIX_PLUGIN_URL.'/scripts/themes.js', array(), CAPTIONPIX_VERSION, true );
+		wp_enqueue_script('common');
+		wp_enqueue_script('wp-lists');
+		wp_enqueue_script('postbox');	
+		add_action('admin_footer-'.$screen_id, array(__CLASS__, 'toggle_postboxes'));
+	}
+
     static function toggle_postboxes() {
-    ?>
-	<script type="text/javascript">
-		//<![CDATA[
+    	$hook = self::get_screen_id();
+    	print <<< TOGGLE_POSTBOXES
+<script type="text/javascript">
+//<![CDATA[
 		jQuery(document).ready( function($) {
-			// close postboxes that should be closed
 			$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-			// postboxes setup
-			postboxes.add_postbox_toggles('<?php echo self::get_screen_id(); ?>');
+			postboxes.add_postbox_toggles('{$hook}');
 		});
-		//]]>
-	</script>
-	<?php
+//]]>
+</script>
+TOGGLE_POSTBOXES;
     }
+    
 
    static function screenshot($theme) {
 		$images = 'http://images.captionpix.com/themes/';
@@ -107,7 +84,7 @@ class captionpix_themes {
    		$attr = array('theme' => 'crystal', 'width'=>'220', 'float'=>'center', 'imgsrc'=> $images.$theme.'.jpg',
    			'imglink'=> $images.$theme.'-big.jpg', 'imglinkrel'=> 'thickbox-'.$group, 'imglinkclass'=>'thickbox', 
    			'imgtitle'=> $title, 'imgalt' => 'Screenshot of '.$title, 'captiontext' => $title);
-   		return captionpix::display($attr);
+   		return CaptionPix::display($attr);
    }
 
 	static function free_panel($post, $metabox) {
@@ -129,7 +106,7 @@ FREE_PANEL;
         $refresh = array_key_exists('refresh',$_GET);
         if ($refresh) {
         	$cache = false;
-        	CaptionPixUpdater::get_updates($cache); //update cache with latest entitlements as a licensed user
+        	CaptionPixUpdater::update($cache); //update cache with latest entitlements as a licensed user
 			}
 		else {
 			$cache = true;
@@ -149,17 +126,6 @@ themes today then you should click to see the latest <a rel="nofollow" href="{$u
 BONUS_PANEL;
 	}	
 
-	static function pro_panel($post, $metabox) {
-		print <<< PRO_PANEL
-<p>In the next month we will be launching CaptionPix Pro which is the premium version of CaptionPix.</p>
-For an annual membership fee we offer support and bonus features:
-<ul class="cpix-benefits">
-<li>Support Forum</li>
-<li>Themes club membership with access to all our themes</li>
-<li>Ability to load your own themes</li>
-</ul>
-PRO_PANEL;
-	}	
 
 	static function help_panel($post, $metabox) {
 		$home = CAPTIONPIX_HOME;
@@ -178,17 +144,14 @@ HELP_PANEL;
  		$this_url = $_SERVER['REQUEST_URI']; 	
  		global $screen_layout_columns;		
 ?>
-    <div id="poststuff" class="metabox-holder has-right-sidebar">
+    <div id="poststuff" class="metabox-holder">
         <h2>CaptionPix Themes</h2>
-        <div id="side-info-column" class="inner-sidebar">
-		<?php do_meta_boxes(self::get_screen_id(), 'side', null); ?>
-        </div>
-        <div id="post-body" class="has-sidebar">
-            <div id="post-body-content" class="has-sidebar-content">
+        <div id="post-body">
+            <div id="post-body-content">
 			<form id="slickr_flickr_options" method="post" action="<?php echo $this_url; ?>">
 			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
 			<fieldset>
-			<?php wp_nonce_field(CAPTIONPIX_THEMES); ?>
+			<?php wp_nonce_field(__CLASS__); ?>
 			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
 			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
 			</fieldset>			
