@@ -4,7 +4,7 @@ Donate link: http://www.captionpix.com/donate/
 Tags: image caption, captioning, photo frame
 Requires at least: 2.8
 Tested up to: 3.8
-Stable tag: 1.3
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,8 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Changelog ==
 
+= 1.3.1 = Fix spurious line in plugin file
+
 = 1.3 = Mobile Responsive
 
 = 1.2 = Add link to allow refresh of themes 
@@ -46,17 +48,15 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Upgrade Notice ==
 
-= 1.3 =
+= 1.3.1 =
  
-* Optional - Mobile responsive option. Hit "Save Changes" button on License page after updating.
+* Mandatory - Support for Mobile responsive theme. 
 
 == How to Use The Plugin ==
 
 The captioned image is inserted into a post or a widget using the captionpix short code.
 
 For example: [captionpix imgsrc="http://images.captionpix.com/posts/example.jpg" captiontext="This is a caption"]
-
-The full list of parameters
 
 == Links ==
 

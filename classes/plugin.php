@@ -13,7 +13,6 @@ if (is_admin()) {
 
 class CaptionPixPlugin {
 	public static function init() {
-		add_action( 'wp_loaded', array('authorsure_options','wordpress_allow_arel') );
 		CaptionPix::init();
 		if (is_admin()) {
 			CaptionPixAdmin::init();	
