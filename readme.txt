@@ -3,8 +3,10 @@ Contributors: powerblogservice, diywebmastery
 Donate link: http://www.captionpix.com/donate/
 Tags: image caption, captioning, photo frame
 Requires at least: 2.8
-Tested up to: 3.3
-Stable tag: 1.2
+Tested up to: 3.8
+Stable tag: 1.3
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 A WordPress image captioning plugin that makes it easy to align a framed and captioned image to the left, right or center of the page. 
 
@@ -14,6 +16,7 @@ A WordPress image captioning plugin that makes it easy to align a framed and cap
 * In the case of left or right alignment, text wraps neatly around your image.
 * Has a variety of different border/frames, colors and font sizes
 * You do not need knowledge of HTML or CSS to use the plugin
+* Now works with mobile responsive themes
 
 == Installation ==
 1. Use the standard WordPress plugin automatic updates system for updating to the latest version on use the manual steps below. 
@@ -28,9 +31,12 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 == Screenshots ==
 1. Left aligned caption with Elegant Theme
 1. Right aligned caption with Chunky Theme
+1. Left aligned caption with Victorian Theme
 
 
 == Changelog ==
+
+= 1.3 = Mobile Responsive
 
 = 1.2 = Add link to allow refresh of themes 
 
@@ -40,9 +46,9 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Upgrade Notice ==
 
-= 1.2 = 
-* Optional - add link to refresh list of available CaptinPix Themes
-
+= 1.3 =
+ 
+* Optional - Mobile responsive option. Hit "Save Changes" button on License page after updating.
 
 == How to Use The Plugin ==
 

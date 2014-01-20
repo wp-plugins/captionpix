@@ -1,0 +1,7 @@
+.lifted-corners {
+border-image-slice: 33 33 33 33; 
+border-image-width: 33px 33px 33px 33px; 
+border-image-outset: 33px 33px 33px 33px; 
+border-image-repeat: repeat repeat; 
+border-image-source: url(../borders/sunflower.jpg);
+}
