@@ -3,8 +3,8 @@ Contributors: powerblogservice, diywebmastery
 Donate link: http://www.captionpix.com/donate/
 Tags: image caption, captioning, photo frame
 Requires at least: 2.8
-Tested up to: 3.8
-Stable tag: 1.3.1
+Tested up to: 3.8.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,21 +36,18 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Changelog ==
 
+= 1.3.2 = Fix loading of plugin under AJAX
 = 1.3.1 = Fix spurious line in plugin file
-
 = 1.3 = Mobile Responsive
-
 = 1.2 = Add link to allow refresh of themes 
-
 = 1.1 = Force max-width on image to be 100% 
-
 = 1.0 = Initial Version
 
 == Upgrade Notice ==
 
-= 1.3.1 =
+= 1.3.2 =
  
-* Mandatory - Support for Mobile responsive theme. 
+* Mandatory - Fix to call when loaded via AJAX. 
 
 == How to Use The Plugin ==
 
