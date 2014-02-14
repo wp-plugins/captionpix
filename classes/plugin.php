@@ -13,6 +13,7 @@ class CaptionPixPlugin {
 	public static function admin_init() {
 		$dir = dirname(__FILE__) . '/';
 		require_once($dir . 'admin.php');
+		require_once($dir . 'tooltip.php');
 		require_once($dir . 'licence.php');
 		require_once($dir . 'defaults.php');
 		require_once($dir . 'themes.php');

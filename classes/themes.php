@@ -38,7 +38,7 @@ class CaptionpixThemes {
 		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
 		add_meta_box('captionpix-free-themes', __('Free CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'free_panel'), self::get_screen_id(), 'normal', 'core');
 		add_meta_box('captionpix-bonus-themes', __('Free Licensed CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'bonus_panel'), self::get_screen_id(), 'normal', 'core');
-		global $current_screen;
+		$current_screen = get_current_screen();
 		add_contextual_help( $current_screen,
 			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
 			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
@@ -46,15 +46,15 @@ class CaptionpixThemes {
 
 
 	static function enqueue_styles() {
+		wp_enqueue_style('captionpix-admin',CAPTIONPIX_PLUGIN_URL.'/styles/admin.css', array(), CAPTIONPIX_VERSION );
 		wp_enqueue_style('captionpix-themes',CAPTIONPIX_PLUGIN_URL.'/styles/themes.css', array(), CAPTIONPIX_VERSION );
 	}
 
 	static function enqueue_scripts() {
-		//wp_enqueue_script('captionpix-themes',CAPTIONPIX_PLUGIN_URL.'/scripts/themes.js', array(), CAPTIONPIX_VERSION, true );
 		wp_enqueue_script('common');
 		wp_enqueue_script('wp-lists');
 		wp_enqueue_script('postbox');	
-		add_action('admin_footer-'.$screen_id, array(__CLASS__, 'toggle_postboxes'));
+		add_action('admin_footer-'.self::get_screen_id(), array(__CLASS__, 'toggle_postboxes'));
 	}
 
     static function toggle_postboxes() {
@@ -144,11 +144,12 @@ HELP_PANEL;
  		$this_url = $_SERVER['REQUEST_URI']; 	
  		global $screen_layout_columns;		
 ?>
+<div class="wrap">
     <div id="poststuff" class="metabox-holder">
-        <h2>CaptionPix Themes</h2>
+        <h2 class="title">CaptionPix Themes</h2>
         <div id="post-body">
             <div id="post-body-content">
-			<form id="slickr_flickr_options" method="post" action="<?php echo $this_url; ?>">
+			<form id="caption_themes" method="post" action="<?php echo $this_url; ?>">
 			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
 			<fieldset>
 			<?php wp_nonce_field(__CLASS__); ?>
@@ -160,6 +161,7 @@ HELP_PANEL;
         </div>
         <br class="clear"/>
     </div>
+</div>
 <?php
 	}  
 

@@ -1,9 +1,21 @@
 <?php
 class CaptionpixDefaults {
+    const CODE = 'captionpix'; //prefix ID of CSS elements
 
     private static $parenthook  = CAPTIONPIX;
     private static $slug = 'captionpix_defaults';
     private static $screen_id;
+    private static $keys;
+	private static $tips = array(
+            'theme' => array('heading' => 'Theme', 'tip' => 'The theme controls the formatting of the frame, image and caption by setting attributes such as colors, font, margins, padding, etc.'),
+			'width' => array('heading' => 'Width', 'tip' => '<p>The width is used to set the size of the image. If you generally want to wrap a paragraph of text around the image then choose a value that is around 50% of the width of the content section of your page. This is typically be around 300 pixels.</p><p class="description">If you want the site to be mobile responsive and have images appear at the maximum possible size for the device then leave the width field blank.</b></p>'),
+	        'align' => array('heading' => 'Alignment', 'tip' => 'Set this value if you typically want to center the image or float the image to the left or right of the text.'),
+			'marginside' => array('heading' => 'Side Margin', 'tip' => 'The side margin is used to create white space between the image and text paragraph. (This will be on the right of the image if the image is aligned to the left, and on the left of the image if the image is aligned to the right).'),
+			'margintop' => array('heading' => 'Top Margin', 'tip' => 'The Top Margin is used to align the top of image with the top of the text paragraph.'),
+			'marginbottom' => array('heading' => 'Bottom Margin', 'tip' => 'The Bottom Margin adds white space between the bottom of the image and the paragraph text.'),
+	);
+	private static $tooltips;
+
 
 	static function init() {
 	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
@@ -26,6 +38,10 @@ class CaptionpixDefaults {
 		return admin_url('admin.php?page='.self::$slug);
 	}
 
+    private static function get_keys(){
+		return self::$keys;
+	}
+
 	static function admin_menu() {
 		$screen_id = self::get_screen_id();
 		add_submenu_page(self::get_parenthook(), __('CaptionPix Default Settings'), __('Settings'), 'manage_options', 
@@ -43,22 +59,34 @@ class CaptionpixDefaults {
 	}
 
 	static function load_page() {
-		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
-		add_meta_box('captionpix-general', __('Display Options',CAPTIONPIX), array(__CLASS__, 'general_panel'), self::get_screen_id(), 'normal', 'core');
-		add_meta_box('captionpix-help', __('Help',CAPTIONPIX), array(__CLASS__, 'help_panel'), self::get_screen_id(), 'side', 'core');
+ 		$message =  isset($_POST['options_update']) ? self::save() : '';	
+		$options = CaptionPixOptions::get_options(self::use_cache());	
+		$callback_params = array ('options' => $options, 'message' => $message);
+		add_meta_box('captionpix-intro', __('Intro',CAPTIONPIX), array(__CLASS__, 'intro_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
+		add_meta_box('captionpix-general', __('Display Defaults',CAPTIONPIX), array(__CLASS__, 'general_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
+		add_meta_box('captionpix-help', __('Help',CAPTIONPIX), array(__CLASS__, 'help_panel'), self::get_screen_id(), 'side', 'core', $callback_params);
 		add_filter('screen_layout_columns', array(__CLASS__, 'screen_layout_columns'), 10, 2);
 		global $current_screen;
 		add_contextual_help( $current_screen,
 			'<h3>CaptionPix</h3><p>Here you can set the default plugin settings.</p>'. 
 			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
+	    self::$keys = array_keys(self::$tips);	
+		self::$tooltips = new DIYTooltip(self::$tips);
+		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
+		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
+
 	}
 
+	public static function enqueue_styles() {
+		wp_enqueue_style(self::CODE.'-admin', plugins_url('styles/admin.css',dirname(__FILE__)), array(),FOOTER_PUTTER_VERSION);
+		wp_enqueue_style(self::CODE.'-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(),FOOTER_PUTTER_VERSION);
+ 	}		
+
 	static function enqueue_scripts() {
-//		wp_enqueue_script('captionpix-defaults',CAPTIONPIX_PLUGIN_URL.'/scripts/defaults.js', array(), CAPTIONPIX_VERSION, true );
 		wp_enqueue_script('common');
 		wp_enqueue_script('wp-lists');
 		wp_enqueue_script('postbox');	
-		add_action('admin_footer-'.$screen_id, array(__CLASS__, 'toggle_postboxes'));
+		add_action('admin_footer-'.self::get_screen_id(), array(__CLASS__, 'toggle_postboxes'));
 	}
 
 
@@ -106,8 +134,19 @@ TOGGLE_POSTBOXES;
   		return '<div id="message" class="' . $class .' "><p>' . $message. '</p></div>';
 	}
 
+	public static function intro_panel($post,$metabox){	
+		$message = $metabox['args']['message'];	 	
+		print <<< INTRO_PANEL
+<p>For help on gettting the best from CaptionPix visit the <a href="http://www.captionpix.com/">CaptionPix Plugin Home Page</a></p>
+<p>If you supply a value for one of the settings below, the plugin will remember it so you do not need to supply it for every image.</p>
+<p>Note also that you can override any default value you set here by specifying a value on each image you caption.</p>
+<p>For example, you may use the <em>Crystal</em> theme as the default caption style but perhaps use the <em>Chunky</em> style on a particular image by specifying <code>theme="chunky"</code> in the shortcode</p>
+{$message}
+INTRO_PANEL;
+	}
+
 	static function general_panel($post, $metabox) {		
-		$options = CaptionPixOptions::get_options(self::use_cache());	
+		$options = $metabox['args']['options'];	 	
 		$themes = CaptionPixThemeFactory::get_theme_names();
 		$theme= $options['theme'];
 		$s= sprintf('<select name="%1$s" id="%1$s"><option value="">%2$s</option>','theme',__('Please select'));
@@ -119,43 +158,29 @@ TOGGLE_POSTBOXES;
 		$align_center = $options['align']=="center"?'selected="selected"':'';
 		$align_left = $options['align']=="left"?'selected="selected"':'';
 		$align_right = $options['align']=="right"?'selected="selected"':'';
+		$tip1 = self::$tooltips->tip('theme');
+		$tip2 = self::$tooltips->tip('width');
+		$tip3 = self::$tooltips->tip('marginside');
+		$tip4 = self::$tooltips->tip('margintop');
+		$tip5 = self::$tooltips->tip('marginbottom');
+		$tip6 = self::$tooltips->tip('align');
 		print <<< GENERAL_PANEL
-<h4>Default Theme</h4>
-<p>The theme controls the formatting of the frame, image and caption by setting attributes such as colors, font, margins, padding, etc.</p>
-<p>If you supply the theme here, the plugin will remember it so you do not need to supply it for every image.</p>
-<label for="width">Theme: </label> {$theme_list}
-<h4>Default Image Width</h4>
-<p>The width is used to set the size of the image. If you generally want to wrap a paragraph of text around the image then choose a value 
-that is around 50% of the width of the content section of your page. This is typically be around 300 pixels.</p>
-<p>However, if you want the site to be mobile respoonsive and have images appear at the maximum possible size for the device then set this value to zero.</p>
-<p>If you supply it here, the plugin will remember it so you do not need to supply it for every image.</p>
-<label for="width">Image Width: </label><input type="text" name="width" id="width" size="4" maxlength="4" value="{$options['width']}" /> pixels
-<h4>Default Image Alignment</h4>
-<p>Set this value if you typically want to center the image or float the image to the left or right of the text.</p>
-<label for="align">Image Alignment: </label><select name="align" id="align">
+<label>{$tip1}</label> {$theme_list}<br/>
+<label>{$tip2}</label><input type="text" name="width" id="width" size="4" maxlength="4" value="{$options['width']}" /> pixels<br/>
+<label>{$tip3}</label><input name="marginside" type="text" id="marginside" size="4" maxlength="3" value="{$options['marginside']}" /> pixels<br/>
+<label>{$tip4}</label><input name="margintop" type="text" id="margintop" size="4" maxlength="3" value="{$options['margintop']}" /> pixels<br/>
+<label>{$tip5}</label><input name="marginbottom" type="text" id="marginbottom" size="4" maxlength="3" value="{$options['marginbottom']}" /> pixels<br/>	
+<label>{$tip6}</label><select name="align" id="align">
 <option {$align_none} value="none">None</option>
 <option {$align_center} value="center">Center </option>
 <option {$align_left} value="left">Left</option>
 <option {$align_right} value="right">Right</option>
-</select>
-<h4>Default Side Margin</h4>
-<p>The side margin is used to create white space between the image and text paragraph. (This will be on the right of the image if the 
-image is aligned to the left, and on the left of the image if the image is aligned to the right).</p>
-<p>If you supply it here, the plugin will remember it so you do not need to supply it for every image.</p>
-<label for="marginside">Side Margin: </label><input name="marginside" type="text" id="marginside" size="4" maxlength="3" value="{$options['marginside']}" /> pixels
-<h4>Default Top Margin</h4>
-<p>The Top Margin is used to align the top of image with the top of the text paragraph.</p>
-<p>If you supply it here, the plugin will remember it so you do not need to supply it for every image.</p>
-<label for="margintop">Top Margin: </label><input name="margintop" type="text" id="margintop" size="4" maxlength="3" value="{$options['margintop']}" /> pixels	
-<h4>Default Bottom Margin</h4>
-<p>The Bottom Margin create white space between the bottom of the image and the paragraph text.</p>
-<p>If you supply it here, the plugin will remember it so you do not need to supply it for every image.</p>
-<label for="marginbottom">Bottom Margin: </label><input name="marginbottom" type="text" id="marginbottom" size="4" maxlength="3" value="{$options['marginbottom']}" /> pixels	
+</select><br/>
 GENERAL_PANEL;
 	}
 
 	static function advanced_panel($post, $metabox) {		
-		$options = CaptionPixOptions::get_options($this->use_cache());		
+		$options = $metabox['args']['options'];	 	
 		$auto_none = $options['autocaption']=="none"?'selected="selected"':'';
 		$auto_title = $options['autocaption']=="title"?'selected="selected"':'';
 		$auto_alt = $options['autocaption']=="alt"?'selected="selected"':'';
@@ -189,12 +214,13 @@ HELP_PANEL;
 
 	function options_panel() {
  		global $screen_layout_columns;		
- 		if (isset($_POST['options_update'])) echo self::save();
+		$keys = implode(',',self::get_keys());
  		$this_url = $_SERVER['REQUEST_URI']; 		
+		$title = sprintf('<h2 class="title">%1$s</h2>', __('CaptionPix Defaults'));
 ?>
+<div class="wrap">
+    <?php echo $title; ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
-        <h2>CaptionPix Default Settings</h2>
-		<p>For help on gettting the best from CaptionPix visit the <a href="http://www.captionpix.com/">CaptionPix Plugin Home Page</a></p>
         <div id="side-info-column" class="inner-sidebar">
 		<?php do_meta_boxes(self::get_screen_id(), 'side', null); ?>
         </div>
@@ -204,7 +230,7 @@ HELP_PANEL;
 			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
 			<p class="submit">
 			<input type="submit"  class="button-primary" name="options_update" value="Save Changes" />
-			<input type="hidden" name="page_options" value="defaults,theme,width,align,marginside,margintop,marginbottom" />
+			<input type="hidden" name="page_options" value="<?php echo $keys; ?>" />			
 			<?php wp_nonce_field(__CLASS__); ?>
 			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
 			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
@@ -214,6 +240,7 @@ HELP_PANEL;
         </div>
         <br class="clear"/>
     </div>
+</div>
 <?php
 	}  
 
