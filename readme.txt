@@ -4,7 +4,7 @@ Donate link: http://www.captionpix.com/donate/
 Tags: image caption, captioning, photo frame
 Requires at least: 2.8
 Tested up to: 3.8.1
-Stable tag: 1.3.2
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,7 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Changelog ==
 
+= 1.4 = Use imglink=none remove the clickability of the image, remove javascript assist to mobile responsiveness and improve mobile responsive markup, revert to using div rather than span elements, add tooltips in admin page, and replace deprecated screen icon by dash icon on admin pages
 = 1.3.2 = Fix loading of plugin under AJAX
 = 1.3.1 = Fix spurious line in plugin file
 = 1.3 = Mobile Responsive
@@ -45,9 +46,9 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Upgrade Notice ==
 
-= 1.3.2 =
+= 1.4 =
  
-* Mandatory - Fix to call when loaded via AJAX. 
+* Optional - Use imglink=none remove the clickability of the image 
 
 == How to Use The Plugin ==
 

@@ -48,6 +48,7 @@ class CaptionpixLicence {
 	}
 
 	static function enqueue_styles() {
+		wp_enqueue_style('captionpix-admin',CAPTIONPIX_PLUGIN_URL.'/styles/admin.css', array(), CAPTIONPIX_VERSION );
 		wp_enqueue_style('captionpix-licence',CAPTIONPIX_PLUGIN_URL.'/styles/licence.css', array(), CAPTIONPIX_VERSION );
 	}
 
@@ -56,7 +57,7 @@ class CaptionpixLicence {
 		wp_enqueue_script('common');
 		wp_enqueue_script('wp-lists');
 		wp_enqueue_script('postbox');	
-		add_action('admin_footer-'.$screen_id, array(__CLASS__, 'toggle_postboxes'));
+		add_action('admin_footer-'.self::get_screen_id(), array(__CLASS__, 'toggle_postboxes'));
 	}
 
     static function toggle_postboxes() {
@@ -148,8 +149,8 @@ REQUEST_PANEL;
     	$themes_url = CaptionpixThemes::get_url(); 
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
-        <h2>Obtaining a <span class="cpix-highlight">FREE</span> CaptionPix Licence Is A Good Idea!</h2>
-		<p>CaptionPix is a FREE plugin and comes with a <span class="cpix-highlight">standard set of 6 theme designs</span> for image borders.</p>
+        <h2 class="title">Obtaining a <span class="cpix-highlight">FREE</span> CaptionPix Licence Is A Good Idea!</h2>
+		<p>CaptionPix is a FREE plugin and comes with a <span class="cpix-highlight">standard set of 9 theme designs</span> for image borders.</p>
 		<p>If you sign up as a free licensed user we'll give you many <a href="<?php echo $themes_url; ?>">MANY MORE CaptionPix themes</a> as a thank you. By signing up you help to support the work we do by allowing us to contact you about our other plugins and tutorials.</p>
 
         <div id="side-info-column" class="inner-sidebar">

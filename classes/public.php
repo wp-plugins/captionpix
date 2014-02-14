@@ -41,26 +41,8 @@ class CaptionPix {
 
 	static function init() {
 		add_filter('widget_text', 'do_shortcode', 11);
-		//add_filter('the_content', array('captionpix','autocaption'), 10); //autocaptioning coming in a later release
 		add_shortcode('captionpix', array(__CLASS__,'display'));
-		add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue_styles'));
-	}
-
-	static function enqueue_styles() {
-		wp_enqueue_style('captionpix',CAPTIONPIX_PLUGIN_URL.'/styles/public.css', array(), CAPTIONPIX_VERSION );
-	}	
-
-	static function display ($attr) {
-		$errors = self::validate($attr);
-  		if (count($errors) > 0 ) return implode('<br/>',$errors); //exit if errors
-  		$mytheme = array_key_exists('theme', $attr)? $attr['theme'] : CaptionPixOptions::get_option('theme'); //get the chosen theme name
-  		$theme_defaults = CaptionPixThemeFactory::get_theme($mytheme);   //get theme defaults
-  		$defaults = array_merge(CaptionPixOptions::get_options(), $theme_defaults); //get combined list of defaults
-		$nooverrides = $defaults['nooverrides']=='theme' ? array_keys($theme_defaults) : explode(",",$defaults['nooverrides']);
-		if (count($nooverrides) > 0) foreach ($nooverrides as $key) if (array_key_exists($key,$attr)) unset($attr[$key]); //suppress unwanted overrides
-  		$params = shortcode_atts($defaults , $attr ); //get any user overrides
-  		$theme_builder = array('captionpix','build_theme_'.str_replace('-','_',$mytheme));
-  		return is_callable($theme_builder) ? call_user_func($theme_builder,$params) : self::build_html($params);
+		//add_filter('the_content', array('captionpix','autocaption'), 10); //autocaptioning coming in a later release
 	}
 
 	static function autocaption($content) {
@@ -104,6 +86,19 @@ class CaptionPix {
 		$params['imgalt'] = $alt;
 		$params['captiontext'] = $caption;
 		return self::display ($params);
+	}
+
+	static function display ($attr) {
+		$errors = self::validate($attr);
+  		if (count($errors) > 0 ) return implode('<br/>',$errors); //exit if errors
+  		$mytheme = array_key_exists('theme', $attr)? $attr['theme'] : CaptionPixOptions::get_option('theme'); //get the chosen theme name
+  		$theme_defaults = CaptionPixThemeFactory::get_theme($mytheme);   //get theme defaults
+  		$defaults = array_merge(CaptionPixOptions::get_options(), $theme_defaults); //get combined list of defaults
+		$nooverrides = $defaults['nooverrides']=='theme' ? array_keys($theme_defaults) : explode(",",$defaults['nooverrides']);
+		if (count($nooverrides) > 0) foreach ($nooverrides as $key) if (array_key_exists($key,$attr)) unset($attr[$key]); //suppress unwanted overrides
+  		$params = shortcode_atts($defaults , $attr ); //get any user overrides
+  		$theme_builder = array('captionpix','build_theme_'.str_replace('-','_',$mytheme));
+  		return is_callable($theme_builder) ? call_user_func($theme_builder,$params) : self::build_html($params);
 	}
 
 	static function error(&$errors, $message) {
@@ -176,7 +171,7 @@ class CaptionPix {
    		else {
    			$padding = sprintf(';padding : %1$spx %2$spx %3$spx %4$spx',
    				isset($paddingtop) ? $paddingtop : 5, 10, isset($paddingbottom) ? $paddingbottom : 5, 10);
-			$width = empty($width) ? '' : ('; width:'.$width.'px');
+			$width = empty($width) ? '' : sprintf('; width: %1$s', ($width.'px'));
    			if (!empty($maxwidth)) $maxwidth = '; max-width:'.$maxwidth.'px';   			
    			if (!empty($align)) $align = '; text-align:'.$align;
    			if (!empty($fontfamily)) $fontfamily = ';font-family:'.$fontfamily;
@@ -186,10 +181,10 @@ class CaptionPix {
    				$lineheight = '; line-height:'.$fontsize.'px';
    				$fontsize = '; font-size:'.$fontsize.'px';
    			}
-   			$style = 'style="display:inline-block; margin: 0 auto'.$padding.
+   			$style = 'style="margin: 0 auto'.$padding.
    				$width.$maxwidth.$align.$fontfamily.$fontstyle.$fontcolor.$fontsize.$lineheight.'"';
    		}
-   		return sprintf('<span %1$s>%2$s</span>',$style, $text);
+   		return sprintf('<div %1$s>%2$s</div>',$style, $text);
  	}
  
  	static private function build_image($img_params) {
@@ -208,8 +203,13 @@ class CaptionPix {
         	$border = ';border:'.(empty($bordersize) ? '1' : $bordersize).'px solid '.$bordercolor;
         elseif (!empty($border) )
             $border  = ';border:'.$border;
-    	return sprintf('<a%1$s href="%2$s" style="display:block" %3$s><img src="%4$s" style="%5$s" title="%6$s" alt="%7$s" /></a>',    
-			$linkrel, $link ? $link : $src, $linkclass, $src, $padding.$margin.$width.$border, $title, $alt);    
+   		$img = sprintf('<img src="%1$s" style="%2$s" title="%3$s" alt="%4$s" /></a>',    
+				$src, $padding.$margin.$width.$border, $title, $alt);    
+		if ($link == 'none')
+			return $img;
+		else
+    		return sprintf('<a%1$s href="%2$s" style="display:block" %3$s>%4$s</a>',    
+				$linkrel, $link ? $link : $src, $linkclass, $img);    
  	}
 
  	static private function build_frame($frame_params,$img_params,$caption_params) {
@@ -239,9 +239,9 @@ class CaptionPix {
  			$style1 = ' style="'.$display.$width.$align.$margintop.$marginbottom.'"';
  			$style2 = ' style="display:inline-block'.$padding.$framecolor.$framebackground.$frameborder.'"';
  		}
-		return '<span class="captionpix-outer '.'"'.$style1.'>'.
-			   '<span class="captionpix-frame '.$theme.'"'.$style2.'>'.
-	    	   '<span class="captionpix-inner">'.self::build_image($img_params).self::build_caption($caption_params).'</span></span></span>';
+		return '<div class="captionpix-outer '.'"'.$style1.'>'.
+			   '<div class="captionpix-frame '.$theme.'"'.$style2.'>'.
+	    	   '<div class="captionpix-inner">'.self::build_image($img_params).self::build_caption($caption_params).'</div></div></div>';
  	}
 
 	static private function build_html($params) {
@@ -262,9 +262,7 @@ class CaptionPix {
 				$frame_params[$key] = $value;
 			}
 		}
-		if (empty($img_params['width'])) {
-			wp_enqueue_script('captionpix', CAPTIONPIX_PLUGIN_URL."/scripts/public.js", array('jquery'),CAPTIONPIX_VERSION,true);
-		} else {
+		if (!empty($img_params['width'])) {
 			$caption_params['width'] = $img_params['width']-20;
 			$frame_params['width']= $img_params['width'] + $img_params['padding'] + 
 				empty($img_params['bordersize'])?0  : (2*$img_params['bordersize']);
@@ -272,7 +270,5 @@ class CaptionPix {
 		return self::build_frame($frame_params,$img_params,$caption_params);
 	}
 
-
 }
-
 ?>
