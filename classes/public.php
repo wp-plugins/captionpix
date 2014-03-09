@@ -196,7 +196,7 @@ class CaptionPix {
 		$alt = empty($alt) ? $title : htmlspecialchars($alt, ENT_QUOTES) ;
 		$padding = 'padding:'.$padding;
         $margin = ';margin:'.$margin;	
-		$width = empty($width) ? '' : (';max-width:100%; width:'.$width.'px');        	
+		$width = empty($width) ? ';width:100%' : (';width:'.$width.'px;max-width:100%');        	
         if (!empty($linkrel)) $linkrel = ' rel="'.$linkrel.'"'; 
         if (!empty($linkclass)) $linkclass = ' class="'.$linkclass.'"'; 
         if (!empty($bordercolor)) 

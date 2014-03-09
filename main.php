@@ -3,13 +3,13 @@
  * Plugin Name: Caption Pix
  * Plugin URI: http://www.captionpix.com
  * Description: Displays images with captions beautifully
- * Version: 1.4
+ * Version: 1.4.1
  * Author: Russell Jamieson
  * Author URI: http://www.diywebmastery.com/about
  * License: GPLv2+
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
-define('CAPTIONPIX_VERSION', '1.4');
+define('CAPTIONPIX_VERSION', '1.4.1');
 define('CAPTIONPIX', 'captionpix');
 define('CAPTIONPIX_FRIENDLY_NAME', 'CaptionPix');
 define('CAPTIONPIX_PATH', CAPTIONPIX.'/main.php');
