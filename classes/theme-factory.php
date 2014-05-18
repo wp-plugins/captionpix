@@ -30,8 +30,8 @@ class CaptionPixThemeFactory {
  			return array();
  	}
 
-	public function get_theme($theme_name) {
-    	$themes = self::get_themes();
+	public static function get_theme($theme_name) {
+   	 	$themes = self::get_themes();
    	 	if ($theme_name && $themes && array_key_exists($theme_name,$themes))
         	return $themes[$theme_name];
     	else

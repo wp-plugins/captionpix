@@ -2,40 +2,41 @@
 /*
 DESCRIPTION OF PARAMETERS for captionpix short code
 
-theme             - the name of captioning theme
+theme                - the name of captioning theme
 
-align             - align the image either left, right, center or let it be
-frameborder       - full frame border definition 
-framebordercolor  - color of the frame's border
-framebordersize   - width of the frame's border
-framecolor        - colour of the frame
-framesize         - width of the frame of the image
-marginside        - margin for the side of the image when floated left or right
-margintop         - margin for the top of the frame which can be positive or negative
-marginbottom      - margin for the bottom of the frame which can be positive or negative
-width             - total width of the image plus frame
+align                - align the image either left, right, center or let it be
+frameborder          - full frame border definition 
+framebordercolor     - color of the frame's border
+framebordersize      - width of the frame's border
+framecolor           - colour of the frame
+framesize            - width of the frame of the image
+marginside           - margin for the side of the image when floated left or right
+margintop            - margin for the top of the frame which can be positive or negative
+marginbottom         - margin for the bottom of the frame which can be positive or negative
+width                - total width of the image plus frame
 
-imgalt            - image alt text
-imgbordercolor    - colour of the border around the image
-imgbordersize     - size of the border around the image
-imgborder         - full image border specification 
-imglink           - the link to visit when the image is clicked
-imgmargin         - image margin
-imgpadding        - image padding
-imgsrc            - the url to the image to be used (REQUIRED)
-imgtitle          - image title text
+imgalt               - image alt text
+imgbordercolor       - colour of the border around the image
+imgbordersize        - size of the border around the image
+imgborder            - full image border specification 
+imglink              - the link to visit when the image is clicked
+imgmargin            - image margin
+imgpadding           - image padding
+imgsrc               - the url to the image to be used (REQUIRED)
+imgtitle             - image title text
 
-captionalign      - align the caption text either left, right or center
-captionclass      - CSS class used to define the caption (all other params apart from captiontext are ignored)
-captionfontcolor  - colour of the caption font
-captionfontsize   - size in pixels of the caption font
-captionfontfamily - font family for caption text - either inherit or a font name
-captionfontstyle  - font style for caption text - either normal or italic
-captionmargintop  - space to leave at the top of the caption in pixels
-captionmarginbottom - space to leave at the bottom of the caption in pixels
-captiontext       - the caption text to be displayed
+captionalign         - align the caption text either left, right or center
+captionclass         - CSS class used to define the caption (all other params apart from captiontext are ignored)
+captionfontcolor     - colour of the caption font
+captionfontsize      - size in pixels of the caption font
+captionfontfamily    - font family for caption text - either inherit or a font name
+captionfontstyle     - font style for caption text - either normal or italic
+captionpaddingbottom - padding at the bottom of the caption text in pixels
+captionpaddingleft   - padding at the left of the caption text in pixels
+captionpaddingright  - padding at the right of the caption text in pixels
+captionpaddingtop    - padding at the top of the caption text in pixels
+captiontext          - the caption text to be displayed
 */
-
 
 class CaptionPix {
 
@@ -119,7 +120,7 @@ class CaptionPix {
   		if (isset($padding)) self::check_number_range($e, 'padding', $padding, 0, 50);
   		if (isset($width)) self::check_number_range($e, 'width', $width, 0, 1280);
 		if (isset($captionfontcolor)) self::validate_color($e, 'captionfontcolor', $captionfontcolor);
-  		if (isset($captionalign)) self::validate_in_set($e, 'captionalign', $captionalign, array('left','right','center'));
+  		if (isset($captionalign)) self::validate_in_set($e, 'captionalign', $captionalign, array('left','right','center','justify','initial','inherit'));
   		if (isset($captionfontsize)) self::check_number_range($e, 'captionfontsize', $captionfontsize, 4, 72);
   		return $e;
 	}
@@ -169,9 +170,8 @@ class CaptionPix {
    		if (!empty($class)) 
    			$style = 'class="'.$class.'"';   //style using only CSS class
    		else {
-   			$padding = sprintf(';padding : %1$spx %2$spx %3$spx %4$spx',
-   				isset($paddingtop) ? $paddingtop : 5, 10, isset($paddingbottom) ? $paddingbottom : 5, 10);
-			$width = empty($width) ? '' : sprintf('; width: %1$s', ($width.'px'));
+   			$padding = sprintf(';padding : %1$spx %2$spx %3$spx %4$spx', $paddingtop,$paddingright, $paddingbottom, $paddingleft);
+			$width = empty($width) ? '' : sprintf('; width: %1$s', (($width-$paddingleft-$paddingright).'px'));
    			if (!empty($maxwidth)) $maxwidth = '; max-width:'.$maxwidth.'px';   			
    			if (!empty($align)) $align = '; text-align:'.$align;
    			if (!empty($fontfamily)) $fontfamily = ';font-family:'.$fontfamily;
@@ -263,7 +263,7 @@ class CaptionPix {
 			}
 		}
 		if (!empty($img_params['width'])) {
-			$caption_params['width'] = $img_params['width']-20;
+			$caption_params['width'] = $img_params['width'];
 			$frame_params['width']= $img_params['width'] + $img_params['padding'] + 
 				empty($img_params['bordersize'])?0  : (2*$img_params['bordersize']);
 		}

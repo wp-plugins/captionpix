@@ -66,20 +66,22 @@ class CaptionpixDefaults {
 		add_meta_box('captionpix-general', __('Display Defaults',CAPTIONPIX), array(__CLASS__, 'general_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box('captionpix-help', __('Help',CAPTIONPIX), array(__CLASS__, 'help_panel'), self::get_screen_id(), 'side', 'core', $callback_params);
 		add_filter('screen_layout_columns', array(__CLASS__, 'screen_layout_columns'), 10, 2);
-		global $current_screen;
-		add_contextual_help( $current_screen,
-			'<h3>CaptionPix</h3><p>Here you can set the default plugin settings.</p>'. 
-			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
 	    self::$keys = array_keys(self::$tips);	
 		self::$tooltips = new DIYTooltip(self::$tips);
 		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
 		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
-
+		$current_screen = get_current_screen();
+		if (method_exists($current_screen,'add_help_tab')) {
+    		$current_screen->add_help_tab( array(
+        		'id' => 'captionpix_instructions_tab',
+        		'title'	=> __('CaptionPix Defaults'),
+        		'content' => '<h3>CaptionPix</h3><p>Here you can set the default plugin settings.</p><p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>'));
+		}
 	}
 
-	public static function enqueue_styles() {
-		wp_enqueue_style(self::CODE.'-admin', plugins_url('styles/admin.css',dirname(__FILE__)), array(),FOOTER_PUTTER_VERSION);
-		wp_enqueue_style(self::CODE.'-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(),FOOTER_PUTTER_VERSION);
+	static function enqueue_styles() {
+		wp_enqueue_style(self::CODE.'-admin', plugins_url('styles/admin.css',dirname(__FILE__)), array(),CAPTIONPIX_VERSION);
+		wp_enqueue_style(self::CODE.'-tooltip', plugins_url('styles/tooltip.css',dirname(__FILE__)), array(),CAPTIONPIX_VERSION);
  	}		
 
 	static function enqueue_scripts() {
@@ -212,7 +214,7 @@ HELP_PANEL;
 	}	
 
 
-	function options_panel() {
+	static function options_panel() {
  		global $screen_layout_columns;		
 		$keys = implode(',',self::get_keys());
  		$this_url = $_SERVER['REQUEST_URI']; 		
