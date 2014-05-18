@@ -33,6 +33,8 @@ class CaptionPixOptions {
 	    'captionfontsize' => '12',
 	    'captionfontstyle' => 'normal',
 	    'captionfontweight' => 'normal',
+	    'captionpaddingleft' => '10',
+	    'captionpaddingright' => '10',
 	    'captionpaddingtop' => '10',
 	    'captionpaddingbottom' => '5',
 	    'captionmaxwidth' => '',

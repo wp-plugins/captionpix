@@ -41,10 +41,13 @@ class CaptionpixLicence {
 		add_meta_box('captionpix-licence', __('CaptionPix License',CAPTIONPIX), array(__CLASS__, 'licence_panel'), self::get_screen_id(), 'normal', 'core');
 		add_meta_box('captionpix-request', __('Free License Key',CAPTIONPIX), array(__CLASS__, 'request_panel'), self::get_screen_id(), 'side', 'core');
 		add_filter('screen_layout_columns', array(__CLASS__, 'screen_layout_columns'), 10, 2);
-		global $current_screen;
-		add_contextual_help( $current_screen,
-			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
-			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
+		$current_screen = get_current_screen();
+		if (method_exists($current_screen,'add_help_tab')) {
+    		$current_screen->add_help_tab( array(
+        		'id' => 'captionpix_licence_tab',
+        		'title'	=> __('CaptionPix License'),
+        		'content' => '<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p><p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>'));
+		}
 	}
 
 	static function enqueue_styles() {

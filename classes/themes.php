@@ -39,11 +39,13 @@ class CaptionpixThemes {
 		add_meta_box('captionpix-free-themes', __('Free CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'free_panel'), self::get_screen_id(), 'normal', 'core');
 		add_meta_box('captionpix-bonus-themes', __('Free Licensed CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'bonus_panel'), self::get_screen_id(), 'normal', 'core');
 		$current_screen = get_current_screen();
-		add_contextual_help( $current_screen,
-			'<h3>CaptionPix</h3><p>Here you can get your FREE CaptionPix License Key.</p>'. 
-			'<p><a href="'.CAPTIONPIX_HOME.'tutorials" rel="external">Getting Started with CaptionPix</a></p>');	
+		if (method_exists($current_screen,'add_help_tab')) {
+    		$current_screen->add_help_tab( array(
+        		'id' => 'captionpix_licence_tab',
+        		'title'	=> __('CaptionPix Themes'),
+        		'content' => '<h3>CaptionPix</h3><p>Here you can view the available CaptionPix themes for your captions</p>'));
+		}	
 	}
-
 
 	static function enqueue_styles() {
 		wp_enqueue_style('captionpix-admin',CAPTIONPIX_PLUGIN_URL.'/styles/admin.css', array(), CAPTIONPIX_VERSION );
