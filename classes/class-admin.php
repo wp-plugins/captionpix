@@ -1,5 +1,5 @@
 <?php
-class CaptionpixAdmin {
+class Captionpix_Admin {
 
     private static $screen_id;
     
@@ -50,9 +50,9 @@ STYLES;
 	}
 
 	static function resources_panel() {
-    	$licence_url = CaptionPixLicence::get_url(); 
-    	$defaults_url = CaptionPixDefaults::get_url(); 
-    	$themes_url = CaptionPixThemes::get_url(); 
+    	$licence_url = Captionpix_Licence::get_url(); 
+    	$defaults_url = Captionpix_Defaults::get_url(); 
+    	$themes_url = Captionpix_Themes::get_url(); 
     	$logo_url = CAPTIONPIX_IMAGES_URL . '/captionpix-logo.jpg';
     	$home_url = CAPTIONPIX_HOME;
     	print <<< ADMIN_PANEL
@@ -69,4 +69,3 @@ STYLES;
 ADMIN_PANEL;
 	}
 }
-?>

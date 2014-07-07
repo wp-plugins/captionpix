@@ -92,9 +92,9 @@ class CaptionPix {
 	static function display ($attr) {
 		$errors = self::validate($attr);
   		if (count($errors) > 0 ) return implode('<br/>',$errors); //exit if errors
-  		$mytheme = array_key_exists('theme', $attr)? $attr['theme'] : CaptionPixOptions::get_option('theme'); //get the chosen theme name
-  		$theme_defaults = CaptionPixThemeFactory::get_theme($mytheme);   //get theme defaults
-  		$defaults = array_merge(CaptionPixOptions::get_options(), $theme_defaults); //get combined list of defaults
+  		$mytheme = array_key_exists('theme', $attr)? $attr['theme'] : Captionpix_Options::get_option('theme'); //get the chosen theme name
+  		$theme_defaults = Captionpix_Theme_Factory::get_theme($mytheme);   //get theme defaults
+  		$defaults = array_merge(Captionpix_Options::get_options(), $theme_defaults); //get combined list of defaults
 		$nooverrides = $defaults['nooverrides']=='theme' ? array_keys($theme_defaults) : explode(",",$defaults['nooverrides']);
 		if (count($nooverrides) > 0) foreach ($nooverrides as $key) if (array_key_exists($key,$attr)) unset($attr[$key]); //suppress unwanted overrides
   		$params = shortcode_atts($defaults , $attr ); //get any user overrides
@@ -271,4 +271,3 @@ class CaptionPix {
 	}
 
 }
-?>

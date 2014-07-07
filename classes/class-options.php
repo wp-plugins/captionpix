@@ -1,5 +1,5 @@
 <?php
-class CaptionPixOptions {
+class Captionpix_Options {
 
 	private static $defaults = array(
 	    'theme'=> 'crystal',

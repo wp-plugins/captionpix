@@ -1,5 +1,5 @@
 <?php
-class CaptionpixThemes {
+class Captionpix_Themes {
 
     private static $parenthook  = CAPTIONPIX;
     private static $slug = 'captionpix_themes';
@@ -91,7 +91,7 @@ TOGGLE_POSTBOXES;
 
 	static function free_panel($post, $metabox) {
 
-		$themes = CaptionPixThemeFactory::get_themes_in_set('free');
+		$themes = Captionpix_Theme_Factory::get_themes_in_set('free');
 	    $themelist = '';
 	    foreach ($themes as $theme) $themelist .= '<li>'.self::captioned_screenshot($theme,'free').'</li>';
 		print <<< FREE_PANEL
@@ -108,13 +108,13 @@ FREE_PANEL;
         $refresh = array_key_exists('refresh',$_GET);
         if ($refresh) {
         	$cache = false;
-        	CaptionPixUpdater::update($cache); //update cache with latest entitlements as a licensed user
+        	Captionpix_Updater::update($cache); //update cache with latest entitlements as a licensed user
 			}
 		else {
 			$cache = true;
 			$url .= "&refresh=true";
 			}
-        $themes = CaptionPixThemeFactory::get_themes_in_set('licensed',$cache);
+        $themes = Captionpix_Theme_Factory::get_themes_in_set('licensed',$cache);
 	    $themelist = '';
 	    foreach ($themes as $theme) $themelist .= '<li>'.self::captioned_screenshot($theme,'licensed').'</li>';
 		print <<< BONUS_PANEL
@@ -168,4 +168,3 @@ HELP_PANEL;
 	}  
 
 }
-?>

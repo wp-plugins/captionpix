@@ -1,5 +1,5 @@
 <?php
-class CaptionpixDefaults {
+class Captionpix_Defaults {
     const CODE = 'captionpix'; //prefix ID of CSS elements
 
     private static $parenthook  = CAPTIONPIX;
@@ -60,14 +60,14 @@ class CaptionpixDefaults {
 
 	static function load_page() {
  		$message =  isset($_POST['options_update']) ? self::save() : '';	
-		$options = CaptionPixOptions::get_options(self::use_cache());	
+		$options = Captionpix_Options::get_options(self::use_cache());	
 		$callback_params = array ('options' => $options, 'message' => $message);
 		add_meta_box('captionpix-intro', __('Intro',CAPTIONPIX), array(__CLASS__, 'intro_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box('captionpix-general', __('Display Defaults',CAPTIONPIX), array(__CLASS__, 'general_panel'), self::get_screen_id(), 'normal', 'core', $callback_params);
 		add_meta_box('captionpix-help', __('Help',CAPTIONPIX), array(__CLASS__, 'help_panel'), self::get_screen_id(), 'side', 'core', $callback_params);
 		add_filter('screen_layout_columns', array(__CLASS__, 'screen_layout_columns'), 10, 2);
 	    self::$keys = array_keys(self::$tips);	
-		self::$tooltips = new DIYTooltip(self::$tips);
+		self::$tooltips = new DIY_Tooltip(self::$tips);
 		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
 		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
 		$current_screen = get_current_screen();
@@ -91,8 +91,6 @@ class CaptionpixDefaults {
 		add_action('admin_footer-'.self::get_screen_id(), array(__CLASS__, 'toggle_postboxes'));
 	}
 
-
-
     static function toggle_postboxes() {
     	$hook = self::get_screen_id();
     	print <<< TOGGLE_POSTBOXES
@@ -113,7 +111,7 @@ TOGGLE_POSTBOXES;
 
 	static function save() {
 		check_admin_referer(__CLASS__);
-		$old_options = CaptionPixOptions::get_options(false); //fetch old options from database
+		$old_options = Captionpix_Options::get_options(false); //fetch old options from database
   		$new_options = array();
   		$options = explode(',', stripslashes($_POST['page_options']));
   		if ($options) {
@@ -123,7 +121,7 @@ TOGGLE_POSTBOXES;
     			$new_options[$option] = trim(stripslashes($_POST[$option]));
     		} //end for
 
-   			$updates =  CaptionPixOptions::save_options ($new_options) ;
+   			$updates =  Captionpix_Options::save_options ($new_options) ;
   		    $class="updated fade";
    			if ($updates) 
        			$message = __("CaptionPix Settings saved.",CAPTIONPIX);
@@ -149,7 +147,7 @@ INTRO_PANEL;
 
 	static function general_panel($post, $metabox) {		
 		$options = $metabox['args']['options'];	 	
-		$themes = CaptionPixThemeFactory::get_theme_names();
+		$themes = Captionpix_Theme_Factory::get_theme_names();
 		$theme= $options['theme'];
 		$s= sprintf('<select name="%1$s" id="%1$s"><option value="">%2$s</option>','theme',__('Please select'));
 	    for ($i=0; $i<count($themes); $i++) $s .= '<option value="'.$themes[$i] .'">'.str_replace(' ','-',ucwords(str_replace('-',' ',$themes[$i]))) . '</option>';
@@ -213,9 +211,7 @@ ADVANCED_PANEL;
 HELP_PANEL;
 	}	
 
-
 	static function options_panel() {
- 		global $screen_layout_columns;		
 		$keys = implode(',',self::get_keys());
  		$this_url = $_SERVER['REQUEST_URI']; 		
 		$title = sprintf('<h2 class="title">%1$s</h2>', __('CaptionPix Defaults'));
@@ -247,4 +243,3 @@ HELP_PANEL;
 	}  
 
 }
-?>
