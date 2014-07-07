@@ -1,5 +1,5 @@
 <?php
-class CaptionPixThemeFactory {
+class Captionpix_Theme_Factory {
 
 	private static $themes = array();
   	private static $themesets = array();
@@ -49,7 +49,7 @@ class CaptionPixThemeFactory {
 
 	private static function refresh_themes ($cache=true) {
 		$themes = self::$defaults;
-   		$more_themes = CaptionPixUpdater::update($cache);
+   		$more_themes = Captionpix_Updater::update($cache);
    		if (is_array($more_themes) && (count($more_themes) > 0)) $themes = array_merge($more_themes,$themes);
         foreach ($themes as $key => $theme) { //allow local overrides of image file locations, local, amazon s3, cdn using constants placed in wp-config.php
 			if (array_key_exists('framebackground',$theme)) $themes[$key]['framebackground'] = str_replace('CAPTIONPIX_FRAMES_URL',CAPTIONPIX_FRAMES_URL,$theme['framebackground']);
@@ -59,8 +59,7 @@ class CaptionPixThemeFactory {
 	}
 
 	private static function refresh_themesets ($cache=true) {
-   		self::$themesets = CaptionPixUpdater::update($cache,'themesets');
+   		self::$themesets = Captionpix_Updater::update($cache,'themesets');
 	}
 
 }
-?>

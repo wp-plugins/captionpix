@@ -1,5 +1,5 @@
 <?php
-class CaptionPixUpdater {
+class Captionpix_Updater {
 	private static $plugin=CAPTIONPIX;
 	private static $local_version=CAPTIONPIX_VERSION;
 	private static $remote_updater='http://updater.captionpix.com/updates.php';
@@ -161,4 +161,3 @@ class CaptionPixUpdater {
 	}
    
 }
-?>

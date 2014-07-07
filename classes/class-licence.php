@@ -1,5 +1,5 @@
 <?php
-class CaptionpixLicence {
+class Captionpix_Licence {
 
     private static $parenthook  = CAPTIONPIX;
     private static $slug = 'captionpix_license';
@@ -88,11 +88,11 @@ TOGGLE_POSTBOXES;
 
 	static function save() {
 		check_admin_referer(__CLASS__);
-       	if (CaptionPixUpdater::save_licence(trim(stripslashes($_POST['licence'])))) 
+       	if (Captionpix_Updater::save_licence(trim(stripslashes($_POST['licence'])))) 
        		$message = __("CaptionPix License saved.",CAPTIONPIX);
  		else
        		$message = __("CaptionPix License has not changed.",CAPTIONPIX);
- 		CaptionPixUpdater::update(false); //update cache with new entitlements as a licensed user
+ 		Captionpix_Updater::update(false); //update cache with new entitlements as a licensed user
   		return '<div id="message" class="updated fade"><p>' . $message. '</p></div>';
 	}
 
@@ -101,12 +101,12 @@ TOGGLE_POSTBOXES;
 		$is_pro = false;
 		$key_status_indicator ='';
 		$notice ='';
-		$licence = CaptionPixUpdater::get_licence(false);
+		$licence = Captionpix_Updater::get_licence(false);
 		if (! empty($licence)) {
-   			$is_valid = CaptionPixUpdater::check_validity();
+   			$is_valid = Captionpix_Updater::check_validity();
    			$flag = $is_valid ? 'tick' : 'cross';
    			$key_status_indicator = '<img src="' . CAPTIONPIX_PLUGIN_URL .'/images/'.$flag.'.png" alt="a '.$flag.'" />';
- 			$notice = CaptionPixUpdater::get_notice();
+ 			$notice = Captionpix_Updater::get_notice();
  		}
         $readonly = $is_valid ? '' : 'readonly="readonly" class="readonly"';
 		print <<< LICENCE_PANEL
@@ -149,7 +149,7 @@ REQUEST_PANEL;
 	static function controller() {
  		global $screen_layout_columns;		
  		$this_url = $_SERVER['REQUEST_URI']; 		
-    	$themes_url = CaptionpixThemes::get_url(); 
+    	$themes_url = Captionpix_Themes::get_url(); 
 ?>
     <div id="poststuff" class="metabox-holder has-right-sidebar">
         <h2 class="title">Obtaining a <span class="cpix-highlight">FREE</span> CaptionPix Licence Is A Good Idea!</h2>
