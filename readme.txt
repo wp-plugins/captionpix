@@ -2,9 +2,9 @@
 Contributors: powerblogservice, diywebmastery
 Donate link: http://www.captionpix.com/donate/
 Tags: image caption, captioning, photo frame
-Requires at least: 2.8
-Tested up to: 3.9.1
-Stable tag: 1.6
+Requires at least: 3.1
+Tested up to: 4.3
+Stable tag: 1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,7 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 
 == Changelog ==
 
+= 1.7 = Updated for WordPress 4.3, updated admin for better mobile responsiveness, uses admin notices for messages 
 = 1.6 = Updated tooltips to use dash-icons font, and renamed some files to use standard WordPress plugin naming conventions 
 = 1.5 = Add more captioning options such as padding and text justification
 = 1.4.1 = Fix to mobile responsive markup to ensure images are resized to 100% on small devices
@@ -50,9 +51,9 @@ See http://www.captionpix.com/faq/ for the full list of questions and answers ab
 == Upgrade Notice ==
 
 
-= 1.6 =
+= 1.7 =
  
-* Optional - updated tooltips to use dash-icons font 
+* Optional - updated for WordPress 4.3
 
 == How to Use The Plugin ==
 
