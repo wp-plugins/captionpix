@@ -22,6 +22,14 @@ class Captionpix_Theme_Factory {
     	return array_keys(self::get_themes());
 	}
 
+	public static function get_theme_names_in_order() {
+ 		$result = array();
+    	$names = self::get_theme_names();
+    	foreach ($names as $name) $result[$name] = str_replace(' ','-',ucwords(str_replace('-',' ',$name))); 
+		asort($result); //sort alphabetically
+		return $result;
+	}
+
 	public static function get_themes_in_set($myset,$cache=true) {
 		if ((false == $cache) || count(self::$themesets) == 0) self::refresh_themesets($cache);
 		if (is_array(self::$themesets) && (count(self::$themesets) > 0)) 
