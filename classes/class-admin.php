@@ -258,7 +258,7 @@ abstract class Captionpix_Admin {
 			$keys = is_array($keys) ? implode(',', $keys) : $keys;
 			$page_options = sprintf('<input type="hidden" name="page_options" value="%1$s" />', $keys);
 		}
-    	printf('%1$s<form id="diy_options" method="post" %2$saction="%3$s"><p>%4$s%5$s</p>',
+    	printf('%1$s<form id="diy_options" method="post" %2$saction="%3$s"><div>%4$s%5$s</div>',
          $preamble ? $preamble : '', $enctype, $this_url, $page_options, $nonces);
    } 
 

@@ -10,7 +10,7 @@ ul.captionpix-metabox-tabs li.tab a {
 }
 ul.captionpix-metabox-tabs li.tab a.active { 
   color: #000000;
-  background-color: #CCCCCC;
+  background-color: #FDF6DC;
   border-bottom: none;  
 }
 ul.captionpix-metabox-tabs li.link a:hover { text-decoration: underline; }
@@ -28,7 +28,7 @@ ul.captionpix-metabox-tabs li.tab a:hover {
    color: #000000;
 }
 .captionpix-metabox .metabox-content {
-	background: url(images/icon-64.jpg) right bottom no-repeat,  linear-gradient(to bottom, #CCCCCC,#EEEEEE); 
+	background: url(images/icon-64.jpg) right bottom no-repeat,  linear-gradient(to bottom,#FDF6DC, #E7E5DB); 
 	min-height: 60px;
 	padding-bottom:50px;
   border: 1px #AAAAAA solid;	

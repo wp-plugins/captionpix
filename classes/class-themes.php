@@ -11,7 +11,7 @@ class Captionpix_Themes extends Captionpix_Admin {
 	}
 
 	function page_content() {
- 		$title = $this->admin_heading('CaptionPix Themes', CAPTIONPIX_ICON);				
+ 		$title = $this->admin_heading('CaptionPix Themes');				
 		$this->print_admin_form($title, __CLASS__);
 	} 
 

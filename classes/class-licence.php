@@ -11,9 +11,7 @@ class Captionpix_Licence extends Captionpix_Admin {
 	}
 
 	function page_content() {
- 		$title = $this->admin_heading(
- 			'Obtaining a <span class="cpix-highlight">FREE</span> CaptionPix Licence Is A Good Idea!',
- 			CAPTIONPIX_ICON);		
+ 		$title = $this->admin_heading('Obtaining a <span class="cpix-highlight">FREE</span> CaptionPix Licence Is A Good Idea!');		
       $this->print_admin_form_with_sidebar($title, __CLASS__, true) ;
 	} 
 	

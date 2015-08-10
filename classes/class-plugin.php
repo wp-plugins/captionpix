@@ -25,6 +25,7 @@ class Captionpix_Plugin {
 	public static function admin_init() {
 		$dir = dirname(__FILE__) . '/';
 		require_once($dir . 'class-tooltip.php');
+		require_once($dir . 'class-feed-widget.php');		
 		require_once($dir . 'class-admin.php');
 		require_once($dir . 'class-dashboard.php');
 		require_once($dir . 'class-licence.php');
