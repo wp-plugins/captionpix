@@ -1,6 +1,8 @@
 <?php
 class Captionpix_Options {
 
+	const OPTIONS_NAME = 'captionpix_options';
+
 	private static $defaults = array(
 	    'theme'=> 'crystal',
 	    'align' => 'left',
@@ -16,9 +18,9 @@ class Captionpix_Options {
 	    'nostyle' => '',
 	    'width' => '300',
 	    'imgsrc' => '',
-		'imglink' => '',	
-		'imglinkrel' => '',
-		'imglinkclass' => '',
+	    'imglink' => '',	
+	    'imglinkrel' => '',
+	    'imglinkclass' => '',
 	    'imgtitle' => '',
 	    'imgalt' => '',
 	    'imgborder' => 'none',	
@@ -42,32 +44,47 @@ class Captionpix_Options {
 	    'autocaption' => 'none'
 	    );
 
-	private static $options = array();
+    protected static $options = null;	
+
+	private static $autocaptioning = array (
+		'none' => 'None',
+		'title' => 'Use Image Title as Caption',
+		'alt' => 'Use Image Alt as Caption',
+		'post' => 'Use Post Title as Caption'
+		);
+
+    public static function get_autocaptioning() {
+		return self::$autocaptioning;
+    }
 
     private static function get_defaults() {
 		return self::$defaults;
     }
 
+
+    public static function init($more = array()) {
+        if (self::$options === null) self::$options = new Captionpix_DIY_Options(self::OPTIONS_NAME, self::$defaults);
+		if (count($more) > 0) self::$options->add_defaults($more);
+    }
+
 	public static function get_options ($cache = true) {
-		if ($cache && (count(self::$options) > 0)) return self::$options;
-		$defaults = self::get_defaults();
-		$options = get_option('captionpix_options');
-		self::$options = empty($options) ? $defaults : wp_parse_args($options, $defaults); 
-   		return self::$options;
+		return self::$options->get_options($cache = true); 
 	}
 
-	public static function get_option($option_name) {
-	    $options = self::get_options();
-	    if ($option_name && $options && array_key_exists($option_name,$options)) 
-	    	return $options[$option_name];
-	    else
-	        return false;
+	public static function get_option($option_name, $cache = true) {
+	    return self::$options->get_option($option_name, $cache); 
 	}
 
 	public static function save_options ($options) {
-		$result = update_option('captionpix_options',$options);
-		self::get_options(false); //update cache
-		return $result;
+		return self::$options->save_options($options);
 	}
+
+	public static function validate_options ($defaults, $options) {
+		return self::$options->validate_options((array)$defaults, (array)$options);
+	}	
+
+	public static function upgrade_options () {
+		return self::$options->upgrade_options();
+	}	
 }
 ?>

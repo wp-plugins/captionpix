@@ -1,43 +1,25 @@
 <?php
-class Captionpix_Themes {
+class Captionpix_Themes extends Captionpix_Admin {
 
-    private static $parenthook  = CAPTIONPIX;
-    private static $slug = 'captionpix_themes';
-    private static $screen_id;
-
-	static function init() {
-	    self::$screen_id = self::$parenthook.'_page_' . self::$slug;
-		add_action('admin_menu',array(__CLASS__, 'admin_menu'));		
+	function init() {
+		add_action('admin_menu',array($this, 'admin_menu'));		
 	}
 
-    static function get_slug() {
-		return self::$slug;
+	function admin_menu() {
+		$this->screen_id = add_submenu_page($this->get_parent_slug(), __('CaptionPix Themes'), __('Themes'), 'manage_options', $this->get_slug(), array($this,'page_content'));
+		add_action('load-'.$this->get_screen_id(), array($this, 'load_page'));
 	}
 
-    static function get_parenthook(){
-		return self::$parenthook;
-	}
+	function page_content() {
+ 		$title = $this->admin_heading('CaptionPix Themes');				
+		$this->print_admin_form($title, __CLASS__);
+	} 
 
-    static function get_screen_id(){
-		return self::$screen_id;
-	}
-
- 	static function get_url($id='', $noheader = false) {
-		return admin_url('admin.php?page='.self::$slug);
-	}
-
-
-	static function admin_menu() {
-		$screen_id = self::get_screen_id();
-		add_submenu_page(self::get_parenthook(), __('CaptionPix Themes'), __('Themes'), 'manage_options', self::get_slug(), array(__CLASS__,'controller'));
-		add_action('load-'.$screen_id, array(__CLASS__, 'load_page'));
-	}
-
-	static function load_page() {
-		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_styles'));
-		add_action('admin_enqueue_scripts', array(__CLASS__,'enqueue_scripts'));
-		add_meta_box('captionpix-free-themes', __('Free CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'free_panel'), self::get_screen_id(), 'normal', 'core');
-		add_meta_box('captionpix-bonus-themes', __('Free Licensed CaptionPix Themes',CAPTIONPIX), array(__CLASS__, 'bonus_panel'), self::get_screen_id(), 'normal', 'core');
+	function load_page() {
+		add_action('admin_enqueue_scripts', array($this,'enqueue_styles'));
+		add_action('admin_enqueue_scripts', array($this,'enqueue_postbox_scripts'));
+		$this->add_meta_box('free-themes','Free CaptionPix Themes',  'free_panel');
+		$this->add_meta_box('bonus-themes', 'Free Licensed CaptionPix Themes','bonus_panel');
 		$current_screen = get_current_screen();
 		if (method_exists($current_screen,'add_help_tab')) {
     		$current_screen->add_help_tab( array(
@@ -47,40 +29,18 @@ class Captionpix_Themes {
 		}	
 	}
 
-	static function enqueue_styles() {
+	function enqueue_styles() {
 		wp_enqueue_style('captionpix-admin',CAPTIONPIX_PLUGIN_URL.'/styles/admin.css', array(), CAPTIONPIX_VERSION );
 		wp_enqueue_style('captionpix-themes',CAPTIONPIX_PLUGIN_URL.'/styles/themes.css', array(), CAPTIONPIX_VERSION );
 	}
 
-	static function enqueue_scripts() {
-		wp_enqueue_script('common');
-		wp_enqueue_script('wp-lists');
-		wp_enqueue_script('postbox');	
-		add_action('admin_footer-'.self::get_screen_id(), array(__CLASS__, 'toggle_postboxes'));
-	}
-
-    static function toggle_postboxes() {
-    	$hook = self::get_screen_id();
-    	print <<< TOGGLE_POSTBOXES
-<script type="text/javascript">
-//<![CDATA[
-		jQuery(document).ready( function($) {
-			$('.if-js-closed').removeClass('if-js-closed').addClass('closed');
-			postboxes.add_postbox_toggles('{$hook}');
-		});
-//]]>
-</script>
-TOGGLE_POSTBOXES;
-    }
-    
-
-   static function screenshot($theme) {
+	function screenshot($theme) {
 		$images = 'http://images.captionpix.com/themes/';
    		return '<a href="'.$images.$theme.'-big.jpg" rel="thickbox-free" class="thickbox"><img src="'.$images.$theme.'.jpg" title="'.
 				$theme.' Theme" alt="Screenshot of '.$theme.' theme" /></a>';
    }
 
-   static function captioned_screenshot($theme,$group) {
+	function captioned_screenshot($theme,$group) {
 		$images = 'http://images.captionpix.com/themes/';
 		$title = ucwords($theme.' theme');
    		$attr = array('theme' => 'crystal', 'width'=>'220', 'float'=>'center', 'imgsrc'=> $images.$theme.'.jpg',
@@ -89,11 +49,11 @@ TOGGLE_POSTBOXES;
    		return CaptionPix::display($attr);
    }
 
-	static function free_panel($post, $metabox) {
+	function free_panel($post, $metabox) {
 
 		$themes = Captionpix_Theme_Factory::get_themes_in_set('free');
 	    $themelist = '';
-	    foreach ($themes as $theme) $themelist .= '<li>'.self::captioned_screenshot($theme,'free').'</li>';
+	    foreach ($themes as $theme) $themelist .= '<li>'.$this->captioned_screenshot($theme,'free').'</li>';
 		print <<< FREE_PANEL
 <p>The following themes are available to all users in the current version of CaptionPix.</p>
 <p>Click the image for a larger example of how the theme looks with text wrapped around it.</p>
@@ -103,7 +63,7 @@ TOGGLE_POSTBOXES;
 FREE_PANEL;
 	}	
 
-	static function bonus_panel($post, $metabox) {
+	function bonus_panel($post, $metabox) {
 		$url= $_SERVER['REQUEST_URI'];
         $refresh = array_key_exists('refresh',$_GET);
         if ($refresh) {
@@ -116,7 +76,7 @@ FREE_PANEL;
 			}
         $themes = Captionpix_Theme_Factory::get_themes_in_set('licensed',$cache);
 	    $themelist = '';
-	    foreach ($themes as $theme) $themelist .= '<li>'.self::captioned_screenshot($theme,'licensed').'</li>';
+	    foreach ($themes as $theme) $themelist .= '<li>'.$this->captioned_screenshot($theme,'licensed').'</li>';
 		print <<< BONUS_PANEL
 <p>The following themes are available to users who register and install the FREE licence.</p>
 <p>Click the image for a larger example of how the theme looks with text wrapped around it.</p>
@@ -128,8 +88,7 @@ themes today then you should click to see the latest <a rel="nofollow" href="{$u
 BONUS_PANEL;
 	}	
 
-
-	static function help_panel($post, $metabox) {
+	function help_panel($post, $metabox) {
 		$home = CAPTIONPIX_HOME;
 		print <<< HELP_PANEL
 <p><img src="http://images.captionpix.com/layout/captionpix-logo.jpg" alt="CaptionPix Image Captioning Plugin" /></p>
@@ -141,30 +100,5 @@ BONUS_PANEL;
 </ul>
 HELP_PANEL;
 	}	
-
-	static function controller() {
- 		$this_url = $_SERVER['REQUEST_URI']; 	
- 		global $screen_layout_columns;		
-?>
-<div class="wrap">
-    <div id="poststuff" class="metabox-holder">
-        <h2 class="title">CaptionPix Themes</h2>
-        <div id="post-body">
-            <div id="post-body-content">
-			<form id="caption_themes" method="post" action="<?php echo $this_url; ?>">
-			<?php do_meta_boxes(self::get_screen_id(), 'normal', null); ?>
-			<fieldset>
-			<?php wp_nonce_field(__CLASS__); ?>
-			<?php wp_nonce_field('closedpostboxes', 'closedpostboxesnonce', false ); ?>
-			<?php wp_nonce_field('meta-box-order', 'meta-box-order-nonce', false ); ?>
-			</fieldset>			
-			</form>
- 			</div>
-        </div>
-        <br class="clear"/>
-    </div>
-</div>
-<?php
-	}  
 
 }
