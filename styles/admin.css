@@ -1,8 +1,1 @@
-h2.title:before {
-    content: '\f128';
-    display: inline-block;
-    -webkit-font-smoothing: antialiased;
-    font: normal 29px/1 'dashicons';
-    vertical-align: middle;
-    margin-right: 0.3em;
-}
+h2.title i { padding-right: 0.5em; vertical-align: -0.25em; font-size: 1.25em; }
